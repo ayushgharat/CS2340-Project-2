@@ -3,16 +3,22 @@ package com.example.spotifywrapper.fragments.app;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.spotifywrapper.R;
 import com.example.spotifywrapper.utils.ApiClient;
+import com.example.spotifywrapper.utils.SharedViewModel;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,17 +33,19 @@ public class HomePageFragment extends Fragment {
 
     private Call mCall;
     private TextView tv_username;
-    private String token;
+    private ImageView iv_profile_picture;
+    private String userJSONString;
     private ApiClient apiClient;
+    private SharedViewModel viewModel;
+    private static final String TAG = "HomePageFragment";
 
     public HomePageFragment() {
         // Required empty public constructor
     }
 
-    public static HomePageFragment newInstance(String token) {
+    public static HomePageFragment newInstance() {
         HomePageFragment fragment = new HomePageFragment();
         Bundle args = new Bundle();
-        args.putString("token", token);
         fragment.setArguments(args);
         return fragment;
     }
@@ -45,10 +53,11 @@ public class HomePageFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            token = getArguments().getString("token");
-        }
-        apiClient = new ApiClient();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
     }
 
     @Override
@@ -56,33 +65,26 @@ public class HomePageFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_home_page, container, false);
         tv_username = rootView.findViewById(R.id.tv_user_name);
+        iv_profile_picture = rootView.findViewById(R.id.profile_picture);
 
-        // Fetch and display user information
-        getUserProfile();
+        viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
 
-        return rootView;
-    }
+        // Observe changes in data
+        viewModel.getUserJSON().observe(getViewLifecycleOwner(), userJSONData -> {
+            // Handle updated data
+            // This code will be executed when data changes
+            // Update UI or perform any other actions
 
-    private void getUserProfile() {
-        apiClient.getUserProfile(token, new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Log.d("HTTP", "Failed to fetch data: " + e);
-                showToast("Failed to fetch data, watch Logcat for more details");
-            }
-
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                try {
-                    assert response.body() != null;
-                    JSONObject userJSON = new JSONObject(response.body().string());
-                    displayUserInfo(userJSON);
-                } catch (JSONException e) {
-                    Log.d("JSON", "Failed to parse data: " + e);
-                    showToast("Failed to parse data, watch Logcat for more details");
-                }
+            try {
+                JSONObject userJSON = new JSONObject(userJSONData);
+                displayUserInfo(userJSON);
+            } catch (JSONException e) {
+                e.printStackTrace();
+                showToast("Failed to parse user information");
             }
         });
+
+        return rootView;
     }
 
     private void displayUserInfo(JSONObject userJSON) throws JSONException {
@@ -90,6 +92,7 @@ public class HomePageFragment extends Fragment {
         requireActivity().runOnUiThread(() -> {
             try {
                 tv_username.setText(userJSON.getString("display_name"));
+                Picasso.get().load(userJSON.getJSONArray("images").getJSONObject(0).getString("url")).into(iv_profile_picture);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -99,11 +102,5 @@ public class HomePageFragment extends Fragment {
     private void showToast(String message) {
         // Show Toast on the main thread
         requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show());
-    }
-
-    @Override
-    public void onDestroy() {
-        apiClient.cancelCall(mCall);
-        super.onDestroy();
     }
 }

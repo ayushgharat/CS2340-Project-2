@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 
-import com.example.spotifywrapper.MainActivity;
 import com.spotify.sdk.android.auth.AuthorizationClient;
 import com.spotify.sdk.android.auth.AuthorizationRequest;
 import com.spotify.sdk.android.auth.AuthorizationResponse;
@@ -17,7 +16,7 @@ public class SpotifyAuthorizationManager {
     public static final int AUTH_TOKEN_REQUEST_CODE = 0;
     public static final int AUTH_CODE_REQUEST_CODE = 1;
 
-    private String mAccessToken;
+    private String mAccessToken, mAccessCode;
 
     public SpotifyAuthorizationManager() {
         // Default constructor
@@ -34,6 +33,7 @@ public class SpotifyAuthorizationManager {
     public void requestAccessCode(Activity activity, AuthorizationCallback callback) {
         final AuthorizationRequest request = getAuthenticationRequest(AuthorizationResponse.Type.CODE);
         AuthorizationClient.openLoginActivity(activity, AUTH_CODE_REQUEST_CODE, request);
+
     }
 
     private AuthorizationRequest getAuthenticationRequest(AuthorizationResponse.Type type) {
@@ -48,13 +48,26 @@ public class SpotifyAuthorizationManager {
         return Uri.parse(REDIRECT_URI);
     }
 
-    public void handleAuthorizationResult(int requestCode, int resultCode, Intent data, AuthorizationCallback callback) {
+    public void handleTokenAuthorizationResult(int requestCode, int resultCode, Intent data, AuthorizationCallback callback) {
         final AuthorizationResponse response = AuthorizationClient.getResponse(resultCode, data);
 
         if (AUTH_TOKEN_REQUEST_CODE == requestCode) {
             mAccessToken = response.getAccessToken();
             // Handle the access token, for example, pass it to the callback.
             callback.onAuthorizationCompleted(mAccessToken);
+        } else {
+            // Handle other cases if needed
+            callback.onAuthorizationFailed(response.getError());
+        }
+    }
+
+    public void handleCodeAuthorizationResult(int requestCode, int resultCode, Intent data, AuthorizationCallback callback) {
+        final AuthorizationResponse response = AuthorizationClient.getResponse(resultCode, data);
+
+        if (AUTH_CODE_REQUEST_CODE == requestCode) {
+            mAccessCode = response.getCode();
+            // Handle the access code
+            callback.onAuthorizationCompleted(mAccessCode);
         } else {
             // Handle other cases if needed
             callback.onAuthorizationFailed(response.getError());

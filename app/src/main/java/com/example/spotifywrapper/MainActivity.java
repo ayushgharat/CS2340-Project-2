@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         // Pass the result to SpotifyAuthorizationManager
-        authorizationManager.handleAuthorizationResult(requestCode, resultCode, data, new SpotifyAuthorizationManager.AuthorizationCallback() {
+        authorizationManager.handleTokenAuthorizationResult(requestCode, resultCode, data, new SpotifyAuthorizationManager.AuthorizationCallback() {
             @Override
             public void onAuthorizationStarted() {
                 // Handle authorization started
