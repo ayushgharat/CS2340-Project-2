@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         app:labelVisibilityMode="unlabeled"
         android:layout_alignParentBottom="true"
-        app:itemIconTint="@color/white"
+        app:itemIconTint="@color/bnv_selected_item"
         app:itemActiveIndicatorStyle="@color/spotify_green"
         android:background="@color/black"
         app:menu="@menu/bottom_navigation_menu"
