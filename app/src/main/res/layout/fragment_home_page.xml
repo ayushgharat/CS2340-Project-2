@@ -46,6 +46,42 @@
         android:layout_marginBottom="32dp"
         />
 
+    <TextView
+        android:id="@+id/tv_follower_count"
+        app:layout_constraintTop_toBottomOf="@id/tv_user_name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="30dp"
+        android:text="0"
+        android:textSize="48sp"
+        android:textColor="@color/white"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        app:layout_constraintTop_toBottomOf="@id/tv_follower_count"
+        app:layout_constraintStart_toStartOf="@id/tv_follower_count"
+        app:layout_constraintEnd_toEndOf="@id/tv_follower_count"
+        android:layout_marginTop="4dp"
+        android:text="Followers"
+        android:textSize="20sp"
+        android:textColor="@color/white"
+        android:id="@+id/tv_follower_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/bt_generate_insights"
+        app:layout_constraintTop_toBottomOf="@id/tv_follower_title"
+        app:layout_constraintStart_toStartOf="parent"
+        android:text="Generate Insights"
+        android:background="@drawable/button_background_primary"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="40dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/bt_temp_sign_out"

@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,8 +33,9 @@ import okhttp3.Response;
 public class HomePageFragment extends Fragment {
 
     private Call mCall;
-    private TextView tv_username;
+    private TextView tv_username, tv_follower_count;
     private ImageView iv_profile_picture;
+    private Button bt_generate_insights;
     private String userJSONString;
     private ApiClient apiClient;
     private SharedViewModel viewModel;
@@ -65,7 +67,9 @@ public class HomePageFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_home_page, container, false);
         tv_username = rootView.findViewById(R.id.tv_user_name);
+        tv_follower_count = rootView.findViewById(R.id.tv_follower_count);
         iv_profile_picture = rootView.findViewById(R.id.profile_picture);
+        bt_generate_insights = rootView.findViewById(R.id.bt_generate_insights);
 
         viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
 
@@ -84,14 +88,24 @@ public class HomePageFragment extends Fragment {
             }
         });
 
+        bt_generate_insights.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
         return rootView;
     }
 
     private void displayUserInfo(JSONObject userJSON) throws JSONException {
         // Update UI on the main thread
+        Log.d(TAG, "displayUserInfo: " + userJSON.getJSONObject("followers").getInt("total"));
+
         requireActivity().runOnUiThread(() -> {
             try {
                 tv_username.setText(userJSON.getString("display_name"));
+                tv_follower_count.setText(String.valueOf(userJSON.getJSONObject("followers").getInt("total")));
                 Picasso.get().load(userJSON.getJSONArray("images").getJSONObject(0).getString("url")).into(iv_profile_picture);
             } catch (JSONException e) {
                 e.printStackTrace();
