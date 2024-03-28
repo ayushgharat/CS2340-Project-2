@@ -1,5 +1,6 @@
 package com.example.spotifywrapper.fragments.app;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.spotifywrapper.R;
+import com.example.spotifywrapper.StoryActivity;
 import com.example.spotifywrapper.utils.ApiClient;
 import com.example.spotifywrapper.utils.SharedViewModel;
 import com.squareup.picasso.Picasso;
@@ -91,7 +93,8 @@ public class HomePageFragment extends Fragment {
         bt_generate_insights.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Intent intent = new Intent(requireActivity(), StoryActivity.class);
+                startActivity(intent);
             }
         });
 

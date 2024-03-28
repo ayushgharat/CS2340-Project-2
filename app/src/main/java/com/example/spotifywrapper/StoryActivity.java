@@ -1,13 +1,16 @@
 package com.example.spotifywrapper;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.core.view.WindowCompat;
@@ -23,8 +26,20 @@ import jp.shts.android.storiesprogressview.StoriesProgressView;
 public class StoryActivity extends AppCompatActivity implements StoriesProgressView.StoriesListener {
 
     private StoriesProgressView storiesProgressView;
+    private ImageView iv_background;
+    private static final String TAG = "StoryActivity";
+    private int content;
 
     long pressTime = 0L;
+
+    private final int[] resources = new int[]{
+            R.drawable.black_bg,
+            R.drawable.dark_purple_bg,
+            R.drawable.light_purple_bg,
+            R.drawable.light_purple_bg,
+            R.drawable.orange_bg,
+            R.drawable.teal_bg,
+    };
     long limit = 500L;
     private View.OnTouchListener onTouchListener = new View.OnTouchListener() {
         @Override
@@ -45,12 +60,18 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_story);
+        iv_background = findViewById(R.id.image);
 
-        storiesProgressView = (StoriesProgressView) findViewById(R.id.stories);
-        storiesProgressView.setStoriesCount(4); // <- set stories
-        storiesProgressView.setStoryDuration(1200L); // <- set a story duration
+        storiesProgressView = findViewById(R.id.stories);
+        Log.d(TAG, "onCreate: " + storiesProgressView);
+        storiesProgressView.setStoriesCount(resources.length); // <- set stories
+        storiesProgressView.setStoryDuration(2000L); // <- set a story duration
         storiesProgressView.setStoriesListener(this); // <- set listener
         storiesProgressView.startStories(); // <- start progress
+
+        content = 0;
+        iv_background.setImageResource(resources[content]);
 
         // bind reverse view
         View reverse = findViewById(R.id.reverse);
@@ -75,7 +96,8 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
 
     @Override
     public void onNext() {
-        Toast.makeText(this, "onNext", Toast.LENGTH_SHORT).show();
+        iv_background.setImageResource(resources[++content]);
+        //Toast.makeText(this, "onNext", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -87,6 +109,8 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
     @Override
     public void onComplete() {
         Toast.makeText(this, "onComplete", Toast.LENGTH_SHORT).show();
+        Intent intent =  new Intent(StoryActivity.this, HomeActivity.class);
+        startActivity(intent);
     }
 
     @Override
