@@ -5,6 +5,11 @@ import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
+/**
+ * This class creates an instance of the ApiClient, which will be used to make API calls to spotify
+ * to retrieve information from their servers
+ */
+
 public class ApiClient {
 
     private final OkHttpClient httpClient;

@@ -34,12 +34,9 @@ import okhttp3.Response;
 
 public class HomePageFragment extends Fragment {
 
-    private Call mCall;
     private TextView tv_username, tv_follower_count;
     private ImageView iv_profile_picture;
     private Button bt_generate_insights;
-    private String userJSONString;
-    private ApiClient apiClient;
     private SharedViewModel viewModel;
     private static final String TAG = "HomePageFragment";
 
@@ -47,6 +44,10 @@ public class HomePageFragment extends Fragment {
         // Required empty public constructor
     }
 
+    /**
+     * This function just basically return an instance of the fragment
+     * @return
+     */
     public static HomePageFragment newInstance() {
         HomePageFragment fragment = new HomePageFragment();
         Bundle args = new Bundle();
@@ -64,6 +65,7 @@ public class HomePageFragment extends Fragment {
         super.onResume();
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -75,7 +77,7 @@ public class HomePageFragment extends Fragment {
 
         viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
 
-        // Observe changes in data
+        // Observe changes in data from the viewModel class
         viewModel.getUserJSON().observe(getViewLifecycleOwner(), userJSONData -> {
             // Handle updated data
             // This code will be executed when data changes
@@ -101,14 +103,21 @@ public class HomePageFragment extends Fragment {
         return rootView;
     }
 
+    /**
+     * This function takes the updated information, stored as a JSON object, and adds the text to the
+     * components in the fragment. Since it is an asynchronous function, it has to run on the main UI thread
+     * as opposed to a background thread
+     * @param userJSON
+     * @throws JSONException
+     */
     private void displayUserInfo(JSONObject userJSON) throws JSONException {
-        // Update UI on the main thread
-        Log.d(TAG, "displayUserInfo: " + userJSON.getJSONObject("followers").getInt("total"));
 
         requireActivity().runOnUiThread(() -> {
             try {
                 tv_username.setText(userJSON.getString("display_name"));
                 tv_follower_count.setText(String.valueOf(userJSON.getJSONObject("followers").getInt("total")));
+
+                // Picasso is an external library that I am using to render the images into the imageview quickly
                 Picasso.get().load(userJSON.getJSONArray("images").getJSONObject(0).getString("url")).into(iv_profile_picture);
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -116,6 +125,10 @@ public class HomePageFragment extends Fragment {
         });
     }
 
+    /**
+     * Again, because of the asynchronous thing, I was using this function to render toasts
+     * @param message
+     */
     private void showToast(String message) {
         // Show Toast on the main thread
         requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show());

@@ -9,10 +9,9 @@ import androidx.lifecycle.ViewModelProvider;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Button;
-import android.widget.TextView;
 
 import com.example.spotifywrapper.fragments.app.HomePageFragment;
+import com.example.spotifywrapper.fragments.app.HistoryFragment;
 import com.example.spotifywrapper.fragments.app.ProfileFragment;
 import com.example.spotifywrapper.utils.ApiClient;
 import com.example.spotifywrapper.utils.SharedViewModel;
@@ -24,15 +23,12 @@ import org.json.JSONObject;
 import java.io.IOException;
 
 import okhttp3.Callback;
-import okhttp3.OkHttpClient;
 
 import okhttp3.Call;
 import okhttp3.Response;
 
 public class HomeActivity extends AppCompatActivity {
 
-    private Call mCall;
-    private final OkHttpClient mOkHttpClient = new OkHttpClient();
     private static final String TAG = "HomeActivity";
     private String token;
     private ApiClient apiClient;
@@ -43,13 +39,20 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-
+        // This code is used to receive the accessToken for the user from the previous activity
         Intent intent = getIntent();
         token = intent.getStringExtra("token");
 
+        /**
+         * Since data needs to be shared across multiple fragments, we use the ViewModel class
+         * to maintain the data needed for the homepage, history and profile fragments
+         */
+
         viewModel = new ViewModelProvider(this).get(SharedViewModel.class);
 
+        // The apiclient can be used to make API requests
         apiClient = new ApiClient();
+
         getUserProfile();
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -57,7 +60,11 @@ public class HomeActivity extends AppCompatActivity {
         bottomNavigationView.setOnItemSelectedListener(navListener);
     }
 
+    /**
+     * Calls the user profile function in the apiClient class, which retrieves the user's profile from Spotify
+     */
     private void getUserProfile() {
+
         apiClient.getUserProfile(token, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -77,6 +84,10 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * When the activity is loaded for the first time, since no option has been selected on the bottom tab
+     * navigator, we render the homePageFragment by default
+     */
     private void loadHomePageFragment() {
         // Create an instance of HomePageFragment
         HomePageFragment homePageFragment = HomePageFragment.newInstance();
@@ -94,6 +105,10 @@ public class HomeActivity extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
+    /**
+     * This code is used to assign the options on the bottomNavigationView so that when a tab is
+     * selected, the appropriate fragment is shown
+     */
     private final BottomNavigationView.OnNavigationItemSelectedListener navListener = item -> {
         Fragment selectedFragment = null;
 
@@ -102,7 +117,7 @@ public class HomeActivity extends AppCompatActivity {
         if (itemId == R.id.navigation_home) {
             selectedFragment = new HomePageFragment();
         } else if (itemId == R.id.navigation_history) {
-            //selectedFragment = new ClassFragment();
+            selectedFragment = new HistoryFragment();
         } else if (itemId == R.id.navigation_profile) {
             selectedFragment = new ProfileFragment();
         }

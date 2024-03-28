@@ -24,9 +24,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 /**
- * A simple {@link Fragment} subclass.
- * Use the {@link LoginFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * This fragment will be used to enable users to log in to the app
+ * if they already have an existing account
  */
 public class LoginFragment extends Fragment {
 
@@ -44,13 +43,9 @@ public class LoginFragment extends Fragment {
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
      * @return A new instance of fragment LoginFragment.
      */
-    // TODO: Rename and change types and number of parameters
-    public static LoginFragment newInstance(String param1, String param2) {
+    public static LoginFragment newInstance() {
         LoginFragment fragment = new LoginFragment();
         return fragment;
     }
@@ -80,6 +75,8 @@ public class LoginFragment extends Fragment {
             }
         });
 
+        // if the user has not yet created an account, this option enables them to quickly navigate to
+        // the sign up page
         tv_sign_up.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -103,6 +100,10 @@ public class LoginFragment extends Fragment {
         return rootView;
     }
 
+    /**
+     * This function signs the user into the app, so that their information gets stored even when
+     * they exit the app.
+     */
     private void loginUser() {
         String email = et_email.getText().toString();
         String password = et_password.getText().toString();
@@ -129,6 +130,10 @@ public class LoginFragment extends Fragment {
                 });
     }
 
+    /**
+     * If the sign in was successful, the user is then guided to the spotify sign in page where
+     * they will sign into their spotify account
+     */
     private void authorizeSpotify() {
         // Create a new instance of the SpotifyAuthorizationFragment
         SpotifyAuthorizationFragment spotifyFragment = new SpotifyAuthorizationFragment();

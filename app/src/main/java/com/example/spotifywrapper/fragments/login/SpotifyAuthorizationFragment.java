@@ -22,20 +22,12 @@ import com.spotify.sdk.android.auth.AuthorizationResponse;
 import okhttp3.Call;
 
 /**
- * A simple {@link Fragment} subclass.
- * Use the {@link SpotifyAuthorizationFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * This fragment carries out the authorization with spotify to retreive the user's spotify
+ * profile.
  */
 public class SpotifyAuthorizationFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-
     private SpotifyAuthorizationManager authorizationManager;
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     private static final String TAG = "SpotifyAuthorizationFragment";
 
@@ -43,27 +35,11 @@ public class SpotifyAuthorizationFragment extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment SpotifyAuthorizationFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static SpotifyAuthorizationFragment newInstance(String param1, String param2) {
-        SpotifyAuthorizationFragment fragment = new SpotifyAuthorizationFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-        }
+
         authorizationManager = new SpotifyAuthorizationManager();
     }
 
@@ -77,7 +53,10 @@ public class SpotifyAuthorizationFragment extends Fragment {
     }
 
 
-
+    /**
+     * This function requests the access token from spotify which is required for all API calls
+     * related to that user
+     */
     private void requestAccessToken() {
         authorizationManager.requestAccessToken(getActivity(), new SpotifyAuthorizationManager.AuthorizationCallback() {
             @Override

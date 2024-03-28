@@ -29,15 +29,12 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
- * A simple {@link Fragment} subclass.
- * Use the {@link SignUpFragment#newInstance} factory method to
- * create an instance of this fragment.
+ *This fragment will enable the user to create a new account if they have never created an account
+ * before.
  */
 public class SignUpFragment extends Fragment {
 
     private static final String TAG = "SignUpFragment";
-
-
     private EditText et_email, et_password, et_name;
     private TextView tv_login;
     private Button bt_create_account;
@@ -51,13 +48,8 @@ public class SignUpFragment extends Fragment {
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment SignUpFragment.
      */
-    // TODO: Rename and change types and number of parameters
-    public static SignUpFragment newInstance(String param1, String param2) {
+    public static SignUpFragment newInstance() {
         SignUpFragment fragment = new SignUpFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
@@ -95,7 +87,6 @@ public class SignUpFragment extends Fragment {
         tv_login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Create a new instance of the SpotifyAuthorizationFragment
                 LoginFragment loginFragment = new LoginFragment();
 
                 // Get the fragment manager
@@ -104,7 +95,7 @@ public class SignUpFragment extends Fragment {
                 // Begin a transaction
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-                // Replace the current fragment with the SpotifyAuthorizationFragment
+                // Replace the current fragment with the login fragment
                 fragmentTransaction.replace(R.id.fragment_container_login, loginFragment);
 
                 // Commit the transaction
@@ -115,6 +106,10 @@ public class SignUpFragment extends Fragment {
         return rootview;
     }
 
+    /**
+     * Creates a new account for the user and logs them in on the device so that their credentials
+     * are locally stored
+     */
     private void createUserAccount() {
         String email = et_email.getText().toString();
         String password = et_password.getText().toString();
@@ -125,13 +120,13 @@ public class SignUpFragment extends Fragment {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "createUserWithEmail:success");
-                            FirebaseUser firebaseUser = mAuth.getCurrentUser();
 
                             User user = new User();
                             user.setDisplay_name(name);
                             user.setEmail(email);
+
+                            // We save the user's information in the database so that we can
+                            // store the user's past wrapped and other information over there
                             saveUserInDb(user);
 
                             // Switch to SpotifyAuthorizationFragment
@@ -148,13 +143,20 @@ public class SignUpFragment extends Fragment {
                 });
     }
 
+    /**
+     * This function is responsible for storing the user's information in the database.
+     * @param user
+     */
     private void saveUserInDb(User user) {
+        // When the user is created, Firebase automatically generates a unique ID for the user.
+        // We will use the same ID to index the user in our database
+        String uid = mAuth.getCurrentUser().getUid();
+
         db.collection("users")
-                .add(user)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                .document(uid).set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Log.d(TAG, "DocumentSnapshot written with ID: " + documentReference.getId());
+                    public void onSuccess(Void unused) {
+                        Log.d(TAG, "DocumentSnapshot written with ID: " + uid);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -165,6 +167,10 @@ public class SignUpFragment extends Fragment {
                 });
     }
 
+    /**
+     * Similarly, once the user has been created, we then move them to the spotify authorization fragment
+     * where they will log into spotify
+     */
     private void authorizeSpotify() {
         // Create a new instance of the SpotifyAuthorizationFragment
         SpotifyAuthorizationFragment spotifyFragment = new SpotifyAuthorizationFragment();

@@ -41,6 +41,18 @@
                 android:layout_marginTop="24dp"
                 app:shapeAppearanceOverlay="@style/circleImageView"/>
 
+            <androidx.appcompat.widget.AppCompatButton
+                android:layout_marginTop="32dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:id="@+id/bt_sign_out"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="24dp"
+                android:text="Sign Out"
+                android:textColor="#FF0000"
+                android:background="@drawable/button_background_secondary"/>
 
             <androidx.appcompat.widget.AppCompatButton
                 android:layout_marginTop="32dp"

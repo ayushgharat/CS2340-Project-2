@@ -8,7 +8,10 @@ import com.spotify.sdk.android.auth.AuthorizationClient;
 import com.spotify.sdk.android.auth.AuthorizationRequest;
 import com.spotify.sdk.android.auth.AuthorizationResponse;
 
-// SpotifyAuthorizationManager.java
+/**
+ * This class is responsible for carrying out the spotify authorization and retrieving the access
+ * token which will be used to make API calls.
+ */
 public class SpotifyAuthorizationManager {
 
     public static final String CLIENT_ID = "68de614511f343f1915588825ec74154";
@@ -22,6 +25,11 @@ public class SpotifyAuthorizationManager {
         // Default constructor
     }
 
+    /**
+     * This function retrieves the access token from spotify
+     * @param activity
+     * @param callback
+     */
     public void requestAccessToken(Activity activity, AuthorizationCallback callback) {
         final AuthorizationRequest request = getAuthenticationRequest(AuthorizationResponse.Type.TOKEN);
         AuthorizationClient.openLoginActivity(activity, AUTH_TOKEN_REQUEST_CODE, request);
@@ -30,12 +38,24 @@ public class SpotifyAuthorizationManager {
         callback.onAuthorizationStarted();
     }
 
+    /**
+     * This function will retrieve the access code, which can be used to generate access tokens
+     * without having the user continuously log into spotify every time they open the wrapper app
+     * @param activity
+     * @param callback
+     */
     public void requestAccessCode(Activity activity, AuthorizationCallback callback) {
         final AuthorizationRequest request = getAuthenticationRequest(AuthorizationResponse.Type.CODE);
         AuthorizationClient.openLoginActivity(activity, AUTH_CODE_REQUEST_CODE, request);
 
     }
 
+    /**
+     * This function makes the request, while also adding some permissions that are required from
+     * the user
+     * @param type
+     * @return
+     */
     private AuthorizationRequest getAuthenticationRequest(AuthorizationResponse.Type type) {
         return new AuthorizationRequest.Builder(CLIENT_ID, type, getRedirectUri().toString())
                 .setShowDialog(false)
@@ -48,6 +68,14 @@ public class SpotifyAuthorizationManager {
         return Uri.parse(REDIRECT_URI);
     }
 
+    /**
+     * This function retrieves the result from the authorization request and passes on the token
+     * if successful
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     * @param callback
+     */
     public void handleTokenAuthorizationResult(int requestCode, int resultCode, Intent data, AuthorizationCallback callback) {
         final AuthorizationResponse response = AuthorizationClient.getResponse(resultCode, data);
 
@@ -61,6 +89,14 @@ public class SpotifyAuthorizationManager {
         }
     }
 
+    /**
+     * This function would ideally handle the authorization request for the access code and pass on
+     * the code appropriately
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     * @param callback
+     */
     public void handleCodeAuthorizationResult(int requestCode, int resultCode, Intent data, AuthorizationCallback callback) {
         final AuthorizationResponse response = AuthorizationClient.getResponse(resultCode, data);
 
@@ -74,7 +110,9 @@ public class SpotifyAuthorizationManager {
         }
     }
 
-    // Callback interface to handle authorization results
+    /**
+     * Callback interface to handle authorization results
+     */
     public interface AuthorizationCallback {
         void onAuthorizationStarted();
         void onAuthorizationCompleted(String accessToken);
