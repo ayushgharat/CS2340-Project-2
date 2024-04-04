@@ -28,6 +28,26 @@ public class ApiClient {
         apiCall.enqueue(callback);
     }
 
+    public void getFavoriteArtists(String token, Callback callback) {
+        Request request = new Request.Builder()
+                .url("https://api.spotify.com/v1/me/top/artists")
+                .addHeader("Authorization", "Bearer " + token)
+                .build();
+
+        Call apiCall = httpClient.newCall(request);
+        apiCall.enqueue(callback);
+    }
+
+    public void getFavoriteTracks(String token, Callback callback) {
+        Request request = new Request.Builder()
+                .url("https://api.spotify.com/v1/me/top/tracks")
+                .addHeader("Authorization", "Bearer " + token)
+                .build();
+
+        Call apiCall = httpClient.newCall(request);
+        apiCall.enqueue(callback);
+    }
+
     public void cancelCall(Call call) {
         if (call != null) {
             call.cancel();

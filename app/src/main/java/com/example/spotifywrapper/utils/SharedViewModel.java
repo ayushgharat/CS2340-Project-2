@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel;
 
 public class SharedViewModel extends ViewModel {
     private MutableLiveData<String> userJson = new MutableLiveData<>();
+    private MutableLiveData<String> token = new MutableLiveData<>();
 
     public void setUserJson(String value) {
         userJson.postValue(value);
@@ -17,5 +18,13 @@ public class SharedViewModel extends ViewModel {
 
     public LiveData<String> getUserJSON() {
         return userJson;
+    }
+
+    public void setToken(String value) {
+        token.postValue(value);
+    }
+
+    public LiveData<String> getToken() {
+        return token;
     }
 }

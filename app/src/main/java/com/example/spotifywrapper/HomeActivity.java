@@ -49,6 +49,7 @@ public class HomeActivity extends AppCompatActivity {
          */
 
         viewModel = new ViewModelProvider(this).get(SharedViewModel.class);
+        viewModel.setToken(token);
 
         // The apiclient can be used to make API requests
         apiClient = new ApiClient();
@@ -74,6 +75,7 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 try {
+                    Log.d(TAG, "onResponse: Token used: " + token);
                     JSONObject userJSON = new JSONObject(response.body().string());
                     viewModel.setUserJson(userJSON.toString());
                     loadHomePageFragment();

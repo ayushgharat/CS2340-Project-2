@@ -38,6 +38,7 @@ public class HomePageFragment extends Fragment {
     private ImageView iv_profile_picture;
     private Button bt_generate_insights;
     private SharedViewModel viewModel;
+    private String token;
     private static final String TAG = "HomePageFragment";
 
     public HomePageFragment() {
@@ -77,6 +78,10 @@ public class HomePageFragment extends Fragment {
 
         viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
 
+        viewModel.getToken().observe(getViewLifecycleOwner(), token -> {
+            this.token = token;
+        });
+
         // Observe changes in data from the viewModel class
         viewModel.getUserJSON().observe(getViewLifecycleOwner(), userJSONData -> {
             // Handle updated data
@@ -96,6 +101,7 @@ public class HomePageFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(requireActivity(), StoryActivity.class);
+                intent.putExtra("token", token);
                 startActivity(intent);
             }
         });

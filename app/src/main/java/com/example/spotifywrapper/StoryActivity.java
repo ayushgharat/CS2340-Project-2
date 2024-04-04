@@ -3,8 +3,10 @@ package com.example.spotifywrapper;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.example.spotifywrapper.utils.ApiClient;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.util.Log;
@@ -21,7 +23,15 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.example.spotifywrapper.databinding.ActivityStoryBinding;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+
 import jp.shts.android.storiesprogressview.StoriesProgressView;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class StoryActivity extends AppCompatActivity implements StoriesProgressView.StoriesListener {
 
@@ -29,6 +39,8 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
     private ImageView iv_background;
     private static final String TAG = "StoryActivity";
     private int content;
+    private String token;
+    private ApiClient client;
 
     long pressTime = 0L;
 
@@ -61,6 +73,15 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_story);
+
+        client = new ApiClient();
+
+        Intent intent = getIntent();
+        token = intent.getStringExtra("token");
+        Log.d(TAG, "onCreate: Token" + token);
+
+        getWrappedData();
+
         iv_background = findViewById(R.id.image);
 
         storiesProgressView = findViewById(R.id.stories);
@@ -94,6 +115,25 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
         skip.setOnTouchListener(onTouchListener);
     }
 
+    private void getWrappedData() {
+        client.getFavoriteArtists(token, new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                Log.e("HTTP", "Failed to fetch data: " + e);
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                try {
+                    JSONObject favoriteArtists = new JSONObject(response.body().string());
+                    Log.d(TAG, "onResponse: " + favoriteArtists);
+                } catch (JSONException e) {
+                    Log.e("JSON", "Failed to parse data: " + e);
+                }
+            }
+        });
+    }
+
     @Override
     public void onNext() {
         iv_background.setImageResource(resources[++content]);
@@ -108,9 +148,7 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
 
     @Override
     public void onComplete() {
-        Toast.makeText(this, "onComplete", Toast.LENGTH_SHORT).show();
-        Intent intent =  new Intent(StoryActivity.this, HomeActivity.class);
-        startActivity(intent);
+        finish();
     }
 
     @Override
