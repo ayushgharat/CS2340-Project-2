@@ -1,6 +1,7 @@
 package com.example.spotifywrapper.fragments.app;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -123,6 +124,22 @@ public class HomePageFragment extends Fragment {
                 e.printStackTrace();
             }
         });
+    }
+
+    private void inviteFriends() {
+        String friendsEmail = "friend@example.com"; // Replace with actual friend's email
+        String subject = "Join me on my music app!";
+        String message = "Hey, check out this cool music app! Let's compare our music tastes.";
+
+        Intent intent = new Intent(Intent.ACTION_SENDTO).setData(Uri.parse("mailto:" + friendsEmail))
+                .putExtra(Intent.EXTRA_SUBJECT, subject)
+                .putExtra(Intent.EXTRA_TEXT, message);
+
+        if (intent.resolveActivity(requireActivity().getPackageManager()) != null) {
+            startActivity(intent);
+        } else {
+            showToast("No email app found");
+        }
     }
 
     /**
