@@ -31,7 +31,18 @@
         android:layout_height="match_parent"
         android:contentDescription="@null"
         android:scaleType="centerCrop"
-        tools:src="@drawable/button_background_primary" />
+        tools:src="@drawable/test_bg" />
+
+    <TextView
+        android:id="@+id/tv_story_test"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="50dp"
+        android:fontFamily="@font/figtreebold"
+        android:textSize="32sp"
+        android:textColor="@color/white"
+        />
 
     <jp.shts.android.storiesprogressview.StoriesProgressView
         android:id="@+id/stories"

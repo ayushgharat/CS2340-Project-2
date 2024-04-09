@@ -12,6 +12,7 @@ import com.spotify.sdk.android.auth.AuthorizationResponse;
  * This class is responsible for carrying out the spotify authorization and retrieving the access
  * token which will be used to make API calls.
  */
+
 public class SpotifyAuthorizationManager {
 
     public static final String CLIENT_ID = "68de614511f343f1915588825ec74154";

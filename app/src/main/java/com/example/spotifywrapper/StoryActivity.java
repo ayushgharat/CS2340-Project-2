@@ -3,8 +3,9 @@ package com.example.spotifywrapper;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.example.spotifywrapper.model.Wrapped;
 import com.example.spotifywrapper.utils.ApiClient;
-import com.google.android.material.snackbar.Snackbar;
+import com.squareup.picasso.Picasso;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,20 +14,15 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.core.view.WindowCompat;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
-
-import com.example.spotifywrapper.databinding.ActivityStoryBinding;
-
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import jp.shts.android.storiesprogressview.StoriesProgressView;
 import okhttp3.Call;
@@ -41,6 +37,8 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
     private int content;
     private String token;
     private ApiClient client;
+    private Wrapped wrapped_info;
+    private TextView tv_story_text;
 
     long pressTime = 0L;
 
@@ -52,6 +50,8 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
             R.drawable.orange_bg,
             R.drawable.teal_bg,
     };
+
+    private ArrayList<JSONObject> string_resources;
     long limit = 500L;
     private View.OnTouchListener onTouchListener = new View.OnTouchListener() {
         @Override
@@ -75,6 +75,8 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
         setContentView(R.layout.activity_story);
 
         client = new ApiClient();
+        wrapped_info = new Wrapped();
+        string_resources = new ArrayList<>();
 
         Intent intent = getIntent();
         token = intent.getStringExtra("token");
@@ -83,6 +85,7 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
         getWrappedData();
 
         iv_background = findViewById(R.id.image);
+        tv_story_text = findViewById(R.id.tv_story_test);
 
         storiesProgressView = findViewById(R.id.stories);
         Log.d(TAG, "onCreate: " + storiesProgressView);
@@ -126,7 +129,37 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 try {
                     JSONObject favoriteArtists = new JSONObject(response.body().string());
-                    Log.d(TAG, "onResponse: " + favoriteArtists);
+                    Log.d(TAG, "onResponse: " + favoriteArtists.getJSONArray("items").get(0));
+
+
+                    JSONArray userDisplayFavouriteArtists = new JSONArray();
+
+                    for (int i = 0; i < Math.min(3, favoriteArtists.getJSONArray("items").length()); i++) {
+                        userDisplayFavouriteArtists.put(favoriteArtists.getJSONArray("items").getJSONObject(i));
+                    }
+
+
+                    wrapped_info.setFavoriteArtists(new JSONObject().put("items", userDisplayFavouriteArtists));
+                    string_resources.add(new JSONObject().put("items", userDisplayFavouriteArtists));
+
+                } catch (JSONException e) {
+                    Log.e("JSON", "Failed to parse data: " + e);
+                }
+            }
+        });
+
+        client.getFavoriteTracks(token, new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                Log.e("HTTP", "Failed to fetch data: " + e);
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                try {
+                    JSONObject favoriteTracks = new JSONObject(response.body().string());
+                    Log.d(TAG, "onResponse: " + favoriteTracks);
+                    wrapped_info.setFavoriteTracks(favoriteTracks);
                 } catch (JSONException e) {
                     Log.e("JSON", "Failed to parse data: " + e);
                 }
@@ -138,7 +171,24 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
     public void onNext() {
         iv_background.setImageResource(resources[++content]);
         //Toast.makeText(this, "onNext", Toast.LENGTH_SHORT).show();
+        try {
+            displayUserInfo(string_resources.get(++content));
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
     }
+
+        private void displayUserInfo(JSONObject jsonObject) throws JSONException {
+            this.runOnUiThread(() -> {
+                try {
+                    tv_story_text.setText(jsonObject.getJSONArray("items").toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+
 
     @Override
     public void onPrev() {

@@ -7,6 +7,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.util.Log;
@@ -102,6 +104,27 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 signUserOut();
+            }
+        });
+
+        bt_edit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Create an instance of EditLoginDetailsFragment
+                EditLoginDetailsFragment fragment = new EditLoginDetailsFragment();
+
+                // Get the fragment manager
+                FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+
+                // Begin a transaction
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+                // Replace the existing fragment or add it to the container
+                fragmentTransaction.replace(R.id.fragment_container_home_page, fragment);
+                fragmentTransaction.addToBackStack(null);
+
+                // Commit the transaction
+                fragmentTransaction.commit();
             }
         });
 
