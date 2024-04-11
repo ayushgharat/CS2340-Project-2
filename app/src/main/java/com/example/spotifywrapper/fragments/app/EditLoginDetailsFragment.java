@@ -9,15 +9,20 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.spotifywrapper.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.JsonElement;
+
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -27,46 +32,31 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class EditLoginDetailsFragment extends Fragment {
 
     private static final String TAG = "EditLoginDetailsFragment";
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    private EditText et_name;
+    String oldEmail, oldName;
+
+    private EditText et_name, et_email, et_password;
+    private Button bt_save_credentials;
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    private Map<String, Object> userDetails;
 
-    public EditLoginDetailsFragment() {
+    public EditLoginDetailsFragment(Map<String, Object> userDetails) {
         // Required empty public constructor
-    }
+        this.userDetails = userDetails;
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment EditLoginDetailsFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static EditLoginDetailsFragment newInstance(String param1, String param2) {
-        EditLoginDetailsFragment fragment = new EditLoginDetailsFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+
+        db = FirebaseFirestore.getInstance();
+        mAuth = FirebaseAuth.getInstance();
     }
 
     @Override
@@ -74,30 +64,72 @@ public class EditLoginDetailsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_edit_login_details, container, false);
-
-        db = FirebaseFirestore.getInstance();
-        mAuth = FirebaseAuth.getInstance();
-
         et_name = rootView.findViewById(R.id.et_edit_name_field);
+        et_email = rootView.findViewById(R.id.et_edit_email_field);
+        et_password = rootView.findViewById(R.id.et_edit_name_password);
+        bt_save_credentials = rootView.findViewById(R.id.bt_save_details);
 
-        DocumentReference docRef = db.collection("users").document(mAuth.getUid());
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        oldName = userDetails.get("display_name").toString();
+        oldEmail = userDetails.get("email").toString();
+
+        et_name.setText(oldName);
+        et_email.setText(oldEmail);
+        
+        bt_save_credentials.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                        et_name.setText(document.getData().get("name").toString());
-                    } else {
-                        Log.d(TAG, "No such document");
-                    }
-                } else {
-                    Log.d(TAG, "get failed with ", task.getException());
-                }
+            public void onClick(View view) {
+                updateDetails();
             }
         });
 
         return rootView;
+    }
+
+    private void updateDetails() {
+        String name = et_name.getText().toString();
+        String email = et_email.getText().toString();
+        String password = et_password.getText().toString();
+
+        String uid = mAuth.getCurrentUser().getUid();
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if(!name.equals(oldName)) {
+            db.collection("users").document(uid).update("display_name", name).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void unused) {
+
+                }
+            });
+        }
+
+        if(!email.equals((oldEmail))) {
+            user.updateEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
+
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if(task.isSuccessful()) {
+                        db.collection("users").document(uid).update("email", email).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                Toast.makeText(requireActivity(), "Name updated", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
+        if(!password.isEmpty()) {
+            user.updatePassword(password)
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                Log.d(TAG, "User password updated.");
+                            }
+                        }
+                    });
+        }
     }
 }

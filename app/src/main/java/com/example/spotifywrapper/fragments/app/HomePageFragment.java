@@ -34,6 +34,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -42,6 +43,7 @@ import okhttp3.Response;
 public class HomePageFragment extends Fragment {
 
     private TextView tv_username, tv_follower_count;
+    private ArrayList<String> track_id;
     private ImageView iv_profile_picture;
     private Button bt_generate_insights;
     private SharedViewModel viewModel;
@@ -81,6 +83,7 @@ public class HomePageFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         gson = new Gson();
+        track_id = new ArrayList<>();
 
         View rootView = inflater.inflate(R.layout.fragment_home_page, container, false);
         tv_username = rootView.findViewById(R.id.tv_user_name);
@@ -147,83 +150,99 @@ public class HomePageFragment extends Fragment {
 
                 wrapped_info.setFavoriteArtists(userDisplayFavouriteArtists);
                 //string_resources.add(new JSONObject().put("items", userDisplayFavouriteArtists));
+                client.getFavoriteTracks(token, new Callback() {
+                    @Override
+                    public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                        Log.e("HTTP", "Failed to fetch data: " + e);
+                    }
 
-            }
-        });
+                    @Override
+                    public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                        try {
 
-        client.getPopularLikedSong(token, new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Log.e("HTTP", "Failed to fetch data: " + e);
-            }
+                            JsonParser jsonParser = new JsonParser();
+                            JsonObject favoriteTracks = (JsonObject) jsonParser.parse(response.body().string());
+                            Log.d(TAG, "onResponse: " + favoriteTracks);
 
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                try {
+                            JsonArray userDisplayFavouriteTracks = new JsonArray();
 
-                    JsonParser jsonParser = new JsonParser();
-                    JsonObject allTracks = (JsonObject) jsonParser.parse(response.body().string());
+                            for (int i = 0; i < Math.min(5, favoriteTracks.getAsJsonArray("items").size()); i++) {
+                                JsonObject object = new JsonObject();
+                                object.add("name", favoriteTracks.getAsJsonArray("items").get(i).getAsJsonObject().get("name"));
+                                object.add("artist", favoriteTracks.getAsJsonArray("items").get(i).getAsJsonObject().getAsJsonArray("artists").get(0).getAsJsonObject().get("name"));
+                                object.add("url", favoriteTracks.getAsJsonArray("items").get(i).getAsJsonObject().getAsJsonObject("album").getAsJsonArray("images").get(0).getAsJsonObject().get("url"));
+                                userDisplayFavouriteTracks.add(object);
+                            }
 
-                    JsonObject userDisplayFavouriteTracks = new JsonObject();
+                            // save spotify ID for the most played track
+                            track_id.add(0, favoriteTracks.getAsJsonArray("items").get(1).getAsJsonObject().get("id").getAsString());
+                            track_id.add(1, favoriteTracks.getAsJsonArray("items").get(0).getAsJsonObject().get("id").getAsString());
 
-                    int popularity = 0, maxIndex = 0;
 
-                    for (int i = 0; i < allTracks.getAsJsonArray("items").size(); i++) {
-                        if(allTracks.getAsJsonArray("items").get(i).getAsJsonObject().getAsJsonObject("track").get("popularity").getAsInt() > popularity) {
-                            maxIndex = i;
-                            popularity = allTracks.getAsJsonArray("items").get(i).getAsJsonObject().getAsJsonObject("track").get("popularity").getAsInt();
+                            //string_resources.add(new JSONObject().put("items", userDisplayFavouriteTracks));
+                            wrapped_info.setFavoriteTracks(userDisplayFavouriteTracks);
+
+                            client.getPopularLikedSong(token, new Callback() {
+                                @Override
+                                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                                    Log.e("HTTP", "Failed to fetch data: " + e);
+                                }
+
+                                @Override
+                                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                                    try {
+
+                                        JsonParser jsonParser = new JsonParser();
+                                        JsonObject allTracks = (JsonObject) jsonParser.parse(response.body().string());
+
+                                        JsonObject userDisplayFavouriteTracks = new JsonObject();
+
+                                        int popularity = 0, maxIndex = 0;
+
+                                        for (int i = 0; i < allTracks.getAsJsonArray("items").size(); i++) {
+                                            if(allTracks.getAsJsonArray("items").get(i).getAsJsonObject().getAsJsonObject("track").get("popularity").getAsInt() > popularity) {
+                                                maxIndex = i;
+                                                popularity = allTracks.getAsJsonArray("items").get(i).getAsJsonObject().getAsJsonObject("track").get("popularity").getAsInt();
+                                            }
+                                        }
+
+                                        userDisplayFavouriteTracks.addProperty("name", allTracks.getAsJsonArray("items").get(maxIndex).getAsJsonObject().getAsJsonObject("track").get("name").getAsString());
+                                        userDisplayFavouriteTracks.addProperty("album", allTracks.getAsJsonArray("items").get(maxIndex).getAsJsonObject().getAsJsonObject("track").getAsJsonObject("album").get("name").getAsString());
+                                        userDisplayFavouriteTracks.addProperty("artist", allTracks.getAsJsonArray("items").get(maxIndex).getAsJsonObject().getAsJsonObject("track").getAsJsonArray("artists").get(0).getAsJsonObject().get("name").getAsString());
+                                        userDisplayFavouriteTracks.addProperty("url", allTracks.getAsJsonArray("items").get(maxIndex).getAsJsonObject().getAsJsonObject("track").getAsJsonObject("album").getAsJsonArray("images").get(0).getAsJsonObject().get("url").getAsString());
+
+                                        //save id for preview
+                                        track_id.add(2, allTracks.getAsJsonArray("items").get(maxIndex).getAsJsonObject().getAsJsonObject("track").get("id").getAsString());
+
+
+                                        wrapped_info.setTracksSaved(userDisplayFavouriteTracks);
+
+                                        String jsonString = gson.toJson(track_id);
+                                        JsonArray previewTracks = gson.fromJson(jsonString, JsonArray.class);
+                                        wrapped_info.setPreviewTracks(previewTracks);
+
+                                        String my_wrapped = gson.toJson(wrapped_info);
+                                        Intent intent = new Intent(requireActivity(), StoryActivity.class);
+                                        intent.putExtra("wrapped_info", my_wrapped);
+                                        intent.putExtra("toBeSaved", true);
+                                        startActivity(intent);
+                                    } catch (Exception e) {
+                                        Log.e("JSON", "Failed to parse data: " + e);
+                                    }
+                                }
+                            });
+                        } catch (Exception e) {
+                            Log.e("JSON", "Failed to parse data: " + e);
                         }
                     }
+                });
 
-                    userDisplayFavouriteTracks.addProperty("name", allTracks.getAsJsonArray("items").get(maxIndex).getAsJsonObject().getAsJsonObject("track").get("name").getAsString());
-                    userDisplayFavouriteTracks.addProperty("album", allTracks.getAsJsonArray("items").get(maxIndex).getAsJsonObject().getAsJsonObject("track").getAsJsonObject("album").get("name").getAsString());
-                    userDisplayFavouriteTracks.addProperty("artist", allTracks.getAsJsonArray("items").get(maxIndex).getAsJsonObject().getAsJsonObject("track").getAsJsonArray("artists").get(0).getAsJsonObject().get("name").getAsString());
-                    userDisplayFavouriteTracks.addProperty("url", allTracks.getAsJsonArray("items").get(maxIndex).getAsJsonObject().getAsJsonObject("track").getAsJsonObject("album").getAsJsonArray("images").get(0).getAsJsonObject().get("url").getAsString());
-
-                    //string_resources.add(new JSONObject().put("items", userDisplayFavouriteTracks));
-                    wrapped_info.setTracksSaved(userDisplayFavouriteTracks);
-                    String my_wrapped = gson.toJson(wrapped_info);
-                    Intent intent = new Intent(requireActivity(), StoryActivity.class);
-                    intent.putExtra("wrapped_info", my_wrapped);
-                    intent.putExtra("toBeSaved", true);
-                    startActivity(intent);
-                } catch (Exception e) {
-                    Log.e("JSON", "Failed to parse data: " + e);
-                }
             }
         });
 
-        client.getFavoriteTracks(token, new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Log.e("HTTP", "Failed to fetch data: " + e);
-            }
 
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                try {
 
-                    JsonParser jsonParser = new JsonParser();
-                    JsonObject favoriteTracks = (JsonObject) jsonParser.parse(response.body().string());
-                    Log.d(TAG, "onResponse: " + favoriteTracks);
 
-                    JsonArray userDisplayFavouriteTracks = new JsonArray();
-
-                    for (int i = 0; i < Math.min(5, favoriteTracks.getAsJsonArray("items").size()); i++) {
-                        JsonObject object = new JsonObject();
-                        object.add("name", favoriteTracks.getAsJsonArray("items").get(i).getAsJsonObject().get("name"));
-                        object.add("artist", favoriteTracks.getAsJsonArray("items").get(i).getAsJsonObject().getAsJsonArray("artists").get(0).getAsJsonObject().get("name"));
-                        object.add("url", favoriteTracks.getAsJsonArray("items").get(i).getAsJsonObject().getAsJsonObject("album").getAsJsonArray("images").get(0).getAsJsonObject().get("url"));
-                        userDisplayFavouriteTracks.add(object);
-                    }
-
-                    //string_resources.add(new JSONObject().put("items", userDisplayFavouriteTracks));
-                    wrapped_info.setFavoriteTracks(userDisplayFavouriteTracks);
-                } catch (Exception e) {
-                    Log.e("JSON", "Failed to parse data: " + e);
-                }
-            }
-        });
     }
 
     /**

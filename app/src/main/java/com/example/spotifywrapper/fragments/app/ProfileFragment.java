@@ -29,11 +29,17 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.HashMap;
 
 /**
  * This fragment will show the user's profile details and enable them to
@@ -110,21 +116,42 @@ public class ProfileFragment extends Fragment {
         bt_edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Create an instance of EditLoginDetailsFragment
-                EditLoginDetailsFragment fragment = new EditLoginDetailsFragment();
+                db = FirebaseFirestore.getInstance();
+                mAuth = FirebaseAuth.getInstance();
 
-                // Get the fragment manager
-                FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                DocumentReference docRef = db.collection("users").document(mAuth.getCurrentUser().getUid());
+                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                Log.d(TAG, "DocumentSnapshot data: " + document.getData());
 
-                // Begin a transaction
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                                // Create an instance of EditLoginDetailsFragment
+                                EditLoginDetailsFragment fragment = new EditLoginDetailsFragment(document.getData());
 
-                // Replace the existing fragment or add it to the container
-                fragmentTransaction.replace(R.id.fragment_container_home_page, fragment);
-                fragmentTransaction.addToBackStack(null);
+                                // Get the fragment manager
+                                FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
 
-                // Commit the transaction
-                fragmentTransaction.commit();
+                                // Begin a transaction
+                                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+                                // Replace the existing fragment or add it to the container
+                                fragmentTransaction.replace(R.id.fragment_container_home_page, fragment);
+                                fragmentTransaction.addToBackStack(null);
+
+                                // Commit the transaction
+                                fragmentTransaction.commit();
+                            } else {
+                                Log.d(TAG, "No such document");
+                            }
+                        } else {
+                            Log.d(TAG, "get failed with ", task.getException());
+                        }
+                    }
+                });
+
             }
         });
 

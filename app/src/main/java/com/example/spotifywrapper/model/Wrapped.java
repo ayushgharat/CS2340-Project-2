@@ -11,6 +11,15 @@ import java.util.Date;
 public class Wrapped {
 
     private JsonArray favoriteArtists;
+    private JsonArray previewTracks;
+
+    public void setPreviewTracks(JsonArray previewTracks) {
+        this.previewTracks = previewTracks;
+    }
+
+    public JsonArray getPreviewTracks() {
+        return previewTracks;
+    }
 
     public JsonArray getFavoriteArtists() {
         return favoriteArtists;

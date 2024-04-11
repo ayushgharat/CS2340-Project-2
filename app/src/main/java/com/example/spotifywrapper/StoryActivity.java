@@ -114,17 +114,16 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
             string_resources.add(wrapped_info.getFavoriteArtists());
             string_resources.add(wrapped_info.getFavoriteTracks());
 
-            Log.d(TAG, "onCreate: " + wrapped_info.getTracksSaved());
 
             JsonArray temp = new JsonArray();
             temp.add(wrapped_info.getTracksSaved());
             string_resources.add(temp);
-            //getWrappedData();
+
         } catch (Exception e) {
             Log.e(TAG, "onCreate: " + e.getLocalizedMessage() );
         }
 
-        //Log.d(TAG, "onCreate: " + string_resources.get(0).toString());
+        //Log.d(TAG, "onCreate: Preview Tracks" + wrapped_info.getPreviewTracks());
 
         iv_background = findViewById(R.id.image);
 

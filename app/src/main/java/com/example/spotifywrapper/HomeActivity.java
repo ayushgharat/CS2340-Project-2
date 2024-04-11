@@ -101,6 +101,7 @@ public class HomeActivity extends AppCompatActivity {
                 try {
                     Log.d(TAG, "onResponse: Token used: " + token);
                     JSONObject userJSON = new JSONObject(response.body().string());
+
                     viewModel.setUserJson(userJSON.toString());
                     loadHomePageFragment();
                 } catch (JSONException e) {
@@ -140,7 +141,7 @@ public class HomeActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
+                    if (document.exists() && document.getData().get("wrapped_info") != null) {
                         //Log.d(TAG, "DocumentSnapshot data: " + document.getData().get("wrapped_info"));
                         JsonElement element = JsonParser.parseString(document.getData().get("wrapped_info").toString());
 
