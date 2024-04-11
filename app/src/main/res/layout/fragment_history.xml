@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".fragments.app.HistoryFragment">
+    tools:context=".fragments.app.HistoryFragment"
+    android:background="@color/black">
 
     <!-- TODO: Update blank fragment layout -->
     <TextView
@@ -12,6 +13,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Saved Wrapped"
+        android:fontFamily="@font/figtreebold"
+        android:textColor="@color/white"
         android:textSize="32sp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"

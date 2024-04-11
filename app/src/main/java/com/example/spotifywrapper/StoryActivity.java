@@ -57,6 +57,7 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
     private String token;
     private ApiClient client;
     private Gson gson;
+    private Boolean toBeSaved;
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
     private Wrapped wrapped_info;
@@ -99,12 +100,14 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
         client = new ApiClient();
         string_resources = new ArrayList<>();
 
+
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
 
         gson = new Gson();
         Intent intent = getIntent();
         wrapped_info = gson.fromJson(intent.getStringExtra("wrapped_info"), Wrapped.class);
+        toBeSaved = intent.getBooleanExtra("toBeSaved", false);
         //Log.d(TAG, "onCreate: Wrapped Info" + wrapped_info.getFavoriteTracks().toString());
 
         try {
@@ -289,7 +292,11 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
 
     @Override
     public void onComplete() {
-        showSaveDialog();
+        if(toBeSaved) {
+            showSaveDialog();
+        } else {
+            finish();
+        }
     }
 
     private void showSaveDialog() {

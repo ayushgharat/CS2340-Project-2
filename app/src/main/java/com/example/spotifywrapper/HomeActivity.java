@@ -1,5 +1,6 @@
 package com.example.spotifywrapper;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -13,14 +14,26 @@ import android.util.Log;
 import com.example.spotifywrapper.fragments.app.HomePageFragment;
 import com.example.spotifywrapper.fragments.app.HistoryFragment;
 import com.example.spotifywrapper.fragments.app.ProfileFragment;
+import com.example.spotifywrapper.model.Wrapped;
 import com.example.spotifywrapper.utils.ApiClient;
 import com.example.spotifywrapper.utils.SharedViewModel;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 
+import org.checkerframework.checker.units.qual.A;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import okhttp3.Callback;
 
@@ -33,11 +46,20 @@ public class HomeActivity extends AppCompatActivity {
     private String token;
     private ApiClient apiClient;
     private SharedViewModel viewModel;
+    private ArrayList<Wrapped> list;
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
+    private Gson gson;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
+        gson = new Gson();
+        list = new ArrayList<>();
 
         // This code is used to receive the accessToken for the user from the previous activity
         Intent intent = getIntent();
@@ -55,6 +77,8 @@ public class HomeActivity extends AppCompatActivity {
         apiClient = new ApiClient();
 
         getUserProfile();
+        getPastWrapped();
+
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         //assigns a listener that will update the fragment whenever a new item is selected
@@ -105,6 +129,35 @@ public class HomeActivity extends AppCompatActivity {
 
         // Commit the transaction
         fragmentTransaction.commit();
+    }
+
+    private void getPastWrapped() {
+        String uid = mAuth.getCurrentUser().getUid();
+
+        DocumentReference docRef = db.collection("users").document(uid);
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        //Log.d(TAG, "DocumentSnapshot data: " + document.getData().get("wrapped_info"));
+                        JsonElement element = JsonParser.parseString(document.getData().get("wrapped_info").toString());
+
+                        for(int i = 0; i < element.getAsJsonArray().size(); i++) {
+                            list.add(gson.fromJson(element.getAsJsonArray().get(i).getAsJsonObject(), Wrapped.class));
+                        }
+
+                        viewModel.setSaved_wrapped(list);
+
+                    } else {
+                        Log.d(TAG, "No such document");
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
     }
 
     /**

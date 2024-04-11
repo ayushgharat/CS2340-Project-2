@@ -185,6 +185,7 @@ public class HomePageFragment extends Fragment {
                     String my_wrapped = gson.toJson(wrapped_info);
                     Intent intent = new Intent(requireActivity(), StoryActivity.class);
                     intent.putExtra("wrapped_info", my_wrapped);
+                    intent.putExtra("toBeSaved", true);
                     startActivity(intent);
                 } catch (Exception e) {
                     Log.e("JSON", "Failed to parse data: " + e);
