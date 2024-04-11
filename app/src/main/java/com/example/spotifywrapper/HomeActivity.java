@@ -26,6 +26,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import org.checkerframework.checker.units.qual.A;
@@ -77,7 +78,7 @@ public class HomeActivity extends AppCompatActivity {
         apiClient = new ApiClient();
 
         getUserProfile();
-        getPastWrapped();
+        //getPastWrapped();
 
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -90,6 +91,7 @@ public class HomeActivity extends AppCompatActivity {
      */
     private void getUserProfile() {
 
+
         apiClient.getUserProfile(token, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -100,10 +102,13 @@ public class HomeActivity extends AppCompatActivity {
             public void onResponse(Call call, Response response) throws IOException {
                 try {
                     Log.d(TAG, "onResponse: Token used: " + token);
+                    Log.d(TAG, "onResponse: Response data: " + response.body().string());
                     JSONObject userJSON = new JSONObject(response.body().string());
-                    viewModel.setUserJson(userJSON.toString());
+//
+//                    JsonObject userJson = gson.fromJson(response.body().string(), JsonObject.class);
+//                    viewModel.setUserJson(userJson.getAsString());
                     loadHomePageFragment();
-                } catch (JSONException e) {
+                } catch (Exception e) {
                     Log.d("JSON", "Failed to parse data: " + e);
                 }
             }
@@ -140,7 +145,7 @@ public class HomeActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
+                    if (document.exists() && document.getData().get("wrapped_info")!= null)  {
                         //Log.d(TAG, "DocumentSnapshot data: " + document.getData().get("wrapped_info"));
                         JsonElement element = JsonParser.parseString(document.getData().get("wrapped_info").toString());
 

@@ -104,6 +104,7 @@ public class HomePageFragment extends Fragment {
 
             try {
                 JSONObject userJSON = new JSONObject(userJSONData);
+                Log.d(TAG, "onCreateView: " + userJSON.getString("display_name"));
                 displayUserInfo(userJSON);
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -224,6 +225,23 @@ public class HomePageFragment extends Fragment {
                 }
             }
         });
+
+//        client.getTrack(token, new Callback() {
+//            @Override
+//            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+//                Log.e("HTTP", "Failed to fetch data: " + e);
+//            }
+//
+//            @Override
+//            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+//                try {
+//
+//
+//                } catch (Exception e) {
+//                    Log.e("JSON", "Failed to parse data: " + e);
+//                }
+//            }
+//        });
     }
 
     /**

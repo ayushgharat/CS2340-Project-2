@@ -27,6 +27,15 @@ public class ApiClient {
         Call apiCall = httpClient.newCall(request);
         apiCall.enqueue(callback);
     }
+    public void getTrack(String token, Callback callback) {
+        Request request = new Request.Builder()
+                .url("        https://api.spotify.com/v1/tracks/{id}")
+                .addHeader("Authorization", "Bearer " + token)
+                .build();
+
+        Call apiCall = httpClient.newCall(request);
+        apiCall.enqueue(callback);
+    }
 
     public void getFavoriteArtists(String token, Callback callback) {
         Request request = new Request.Builder()
