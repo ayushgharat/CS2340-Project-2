@@ -1,24 +1,30 @@
 package com.example.spotifywrapper.model;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
+import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.Date;
 
 public class Wrapped {
 
-    private JSONObject favoriteArtists;
+    private JsonArray favoriteArtists;
 
-    public JSONObject getFavoriteArtists() {
+    public JsonArray getFavoriteArtists() {
         return favoriteArtists;
     }
 
-    public void setFavoriteArtists(JSONObject favoriteArtists) {
+    public void setFavoriteArtists(JsonArray favoriteArtists) {
         this.favoriteArtists = favoriteArtists;
     }
 
-    public JSONObject getFavoriteTracks() {
+    public JsonArray getFavoriteTracks() {
         return favoriteTracks;
     }
 
-    public void setFavoriteTracks(JSONObject favoriteTracks) {
+    public void setFavoriteTracks(JsonArray favoriteTracks) {
         this.favoriteTracks = favoriteTracks;
     }
 
@@ -30,17 +36,24 @@ public class Wrapped {
         this.artistRecommendations = artistRecommendations;
     }
 
-    public JSONObject getTracksSaved() {
+    public JsonObject getTracksSaved() {
         return tracksSaved;
     }
 
-    public void setTracksSaved(JSONObject tracksSaved) {
+    public void setTracksSaved(JsonObject tracksSaved) {
         this.tracksSaved = tracksSaved;
     }
 
-    private JSONObject favoriteTracks;
+    private JsonArray favoriteTracks;
     private JSONObject artistRecommendations;
-    private JSONObject tracksSaved;
+    private JsonObject tracksSaved;
+    private Date savedDate;
 
+    public Date getSavedDate() {
+        return savedDate;
+    }
 
+    public void setSavedDate(Date savedDate) {
+        this.savedDate = savedDate;
+    }
 }

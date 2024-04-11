@@ -5,6 +5,15 @@ public class User {
     private String display_name;
     private String email;
     private String access_code;
+    private Wrapped wrapped_info;
+
+    public Wrapped getWrapped_info() {
+        return wrapped_info;
+    }
+
+    public void setWrapped_info(Wrapped wrapped_info) {
+        this.wrapped_info = wrapped_info;
+    }
 
     public String getEmail() {
         return email;

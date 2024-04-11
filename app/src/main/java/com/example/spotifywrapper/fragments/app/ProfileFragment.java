@@ -195,6 +195,7 @@ public class ProfileFragment extends Fragment {
 
     private void deleteAccount() {
         String id = mAuth.getCurrentUser().getUid();
+        Log.d(TAG, "deleteAccount: Deleting" + id);
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -203,7 +204,7 @@ public class ProfileFragment extends Fragment {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-
+                            Log.d(TAG, "onComplete: User has been removed from firebaseAuth");
                             //This code removes the user from the database
                             db.collection("users").document(id)
                                     .delete()
@@ -220,6 +221,12 @@ public class ProfileFragment extends Fragment {
                                         }
                                     });
                         }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(requireActivity(), "User needs to relogin to delete the account", Toast.LENGTH_SHORT).show();
+                        signUserOut();
                     }
                 });
 

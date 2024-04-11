@@ -30,11 +30,6 @@ public class SplashScreenFragment extends Fragment {
 
     private static final String TAG = "SplashScreenFragment";
     private Button signUpButton;
-    public static final String CLIENT_ID = "68de614511f343f1915588825ec74154";
-    public static final String REDIRECT_URI = "spotifywrapper://auth";
-
-    public static final int AUTH_TOKEN_REQUEST_CODE = 0;
-    public static final int AUTH_CODE_REQUEST_CODE = 1;
 
     private String mAccessToken;
 
@@ -93,28 +88,5 @@ public class SplashScreenFragment extends Fragment {
         return rootview;
     }
 
-
-    /**
-     * Get authentication request
-     *
-     * @param type the type of the request
-     * @return the authentication request
-     */
-    private AuthorizationRequest getAuthenticationRequest(AuthorizationResponse.Type type) {
-        return new AuthorizationRequest.Builder(CLIENT_ID, type, getRedirectUri().toString())
-                .setShowDialog(false)
-                .setScopes(new String[] { "user-read-email user-top-read" }) // <--- Change the scope of your requested token here
-                .setCampaign("your-campaign-token")
-                .build();
-    }
-
-    /**
-     * Gets the redirect Uri for Spotify
-     *
-     * @return redirect Uri object
-     */
-    private Uri getRedirectUri() {
-        return Uri.parse(REDIRECT_URI);
-    }
 
 }

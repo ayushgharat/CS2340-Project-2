@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Begin a transaction
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
+        
         // This checks if an app user is already logged in
         if(FirebaseAuth.getInstance().getCurrentUser() != null) {
 
@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
             // Commit the transaction
             fragmentTransaction.commit();
         } else {
+            Log.d(TAG, "onCreate: No user logged in");
             // Add the splash screen fragment to the container, where the user can either log in or sign up
             SplashScreenFragment yourFragment = new SplashScreenFragment();
             fragmentTransaction.replace(R.id.fragment_container_login, yourFragment);

@@ -48,6 +48,15 @@ public class ApiClient {
         apiCall.enqueue(callback);
     }
 
+    public void getPopularLikedSong(String token, Callback callback) {
+        Request request = new Request.Builder()
+                .url("https://api.spotify.com/v1/me/tracks?limit=50")
+                .addHeader("Authorization", "Bearer " + token)
+                .build();
+
+        Call apiCall = httpClient.newCall(request);
+        apiCall.enqueue(callback);
+    }
     public void cancelCall(Call call) {
         if (call != null) {
             call.cancel();
