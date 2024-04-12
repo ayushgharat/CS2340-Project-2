@@ -2,6 +2,8 @@ package com.example.spotifywrapper;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 
 import com.example.spotifywrapper.model.Wrapped;
@@ -46,9 +48,11 @@ import jp.shts.android.storiesprogressview.StoriesProgressView;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
+import android.media.MediaPlayer;
 
 public class StoryActivity extends AppCompatActivity implements StoriesProgressView.StoriesListener, Serializable {
 
+    private MediaPlayer mediaPlayer;
     private StoriesProgressView storiesProgressView;
     private LinearLayout layout_fav_artist, layout_fav_track, layout_pop_tracks;
     private ImageView iv_background, iv_artist_1, iv_artist_2, iv_artist_3, iv_artist_4, iv_artist_5, iv_track_1, iv_track_2, iv_track_3, iv_track_4, iv_track_5, iv_popular_track;
@@ -92,6 +96,30 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
             return false;
         }
     };
+    private void changeStory(int direction) {
+        if (mediaPlayer.isPlaying()) {
+            mediaPlayer.stop();
+        }
+        mediaPlayer.reset();
+
+        try {
+            String songUrl = (content + direction); // Calculate next story index
+            mediaPlayer.setDataSource(this, Uri.parse(songUrl));
+            mediaPlayer.prepareAsync();
+        } catch (IOException e) {
+            Log.e(TAG, "Error setting data source", e);
+        }
+
+        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                mediaPlayer.start();
+            }
+        });
+
+        content += direction; // Update current story index
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -168,7 +196,6 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
 
         iv_background.setImageResource(resources[content]);
         displayUserInfo(string_resources.get(content));
-
         storiesProgressView = findViewById(R.id.stories);
         Log.d(TAG, "onCreate: " + storiesProgressView);
         storiesProgressView.setStoriesCount(resources.length); // <- set stories
@@ -177,6 +204,9 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
         storiesProgressView.startStories();
 
         content = 0;
+
+        mediaPlayer.setDataSource(this, arr[content]);
+        mediaPlayer.start();
 
         // bind reverse view
         View reverse = findViewById(R.id.reverse);
@@ -203,6 +233,10 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
     public void onNext() {
         iv_background.setImageResource(resources[++content]);
         displayUserInfo(string_resources.get(content));
+        if (content < resources.length - 1) {
+            changeStory(1);
+        }
+
 
     }
 
@@ -286,6 +320,9 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
     public void onPrev() {
         iv_background.setImageResource(resources[++content]);
         displayUserInfo(string_resources.get(content));
+        if (content > 0) {
+            changeStory(-1);
+        }
 
     }
 
@@ -357,6 +394,13 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
     protected void onDestroy() {
         // Very important !
         storiesProgressView.destroy();
+        if (mediaPlayer != null) {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+            }
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
         super.onDestroy();
     }
 }

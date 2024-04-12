@@ -17,6 +17,16 @@ public class ApiClient {
     public ApiClient() {
         httpClient = new OkHttpClient();
     }
+    public void getTrackDetails(String token, String trackId, Callback callback) {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("https://api.spotify.com/v1/tracks/" + trackId)
+                .addHeader("Authorization", "Bearer " + token)
+                .build();
+
+        client.newCall(request).enqueue(callback);
+    }
+
 
     public void getUserProfile(String token, Callback callback) {
         Request request = new Request.Builder()
