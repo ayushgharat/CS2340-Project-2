@@ -206,6 +206,7 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
 
         iv_background.setImageResource(resources[content]);
         displayUserInfo(string_resources.get(content));
+
         storiesProgressView = findViewById(R.id.stories);
         Log.d(TAG, "onCreate: " + storiesProgressView);
         storiesProgressView.setStoriesCount(resources.length); // <- set stories
@@ -215,12 +216,7 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
 
         content = 0;
 
-        try {
-            mediaPlayer.setDataSource(this, Uri.parse(previewURL.get(content)));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        mediaPlayer.start();
+        changeStory();
 
         // bind reverse view
         View reverse = findViewById(R.id.reverse);
@@ -248,8 +244,6 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
         iv_background.setImageResource(resources[++content]);
         displayUserInfo(string_resources.get(content));
         changeStory();
-
-
 
     }
 
