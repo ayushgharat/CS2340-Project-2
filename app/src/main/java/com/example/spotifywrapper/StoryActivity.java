@@ -103,7 +103,7 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
         mediaPlayer.reset();
 
         try {
-            String songUrl = (content + direction); // Calculate next story index
+            String songUrl = arr(content + direction); // Calculate next story index
             mediaPlayer.setDataSource(this, Uri.parse(songUrl));
             mediaPlayer.prepareAsync();
         } catch (IOException e) {
@@ -116,8 +116,6 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
                 mediaPlayer.start();
             }
         });
-
-        content += direction; // Update current story index
     }
 
     @Override

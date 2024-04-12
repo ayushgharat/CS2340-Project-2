@@ -24,6 +24,7 @@ import com.example.spotifywrapper.utils.ApiClient;
 import com.example.spotifywrapper.utils.SharedViewModel;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
@@ -140,6 +141,7 @@ public class HomePageFragment extends Fragment {
 
                 JsonArray userDisplayFavouriteArtists = new JsonArray();
 
+
                 for (int i = 0; i < Math.min(5, favoriteArtists.getAsJsonArray("items").size()); i++) {
                     JsonObject object = new JsonObject();
                     object.add("name", favoriteArtists.getAsJsonArray("items").get(i).getAsJsonObject().get("name"));
@@ -150,6 +152,7 @@ public class HomePageFragment extends Fragment {
 
                 wrapped_info.setFavoriteArtists(userDisplayFavouriteArtists);
                 //string_resources.add(new JSONObject().put("items", userDisplayFavouriteArtists));
+
                 client.getFavoriteTracks(token, new Callback() {
                     @Override
                     public void onFailure(@NonNull Call call, @NonNull IOException e) {
@@ -244,6 +247,8 @@ public class HomePageFragment extends Fragment {
 
 
     }
+
+
 
     /**
      * This function takes the updated information, stored as a JSON object, and adds the text to the
