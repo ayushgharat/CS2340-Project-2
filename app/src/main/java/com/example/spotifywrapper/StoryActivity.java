@@ -17,6 +17,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.squareup.picasso.Picasso;
 
@@ -39,6 +40,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -79,6 +81,7 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
     };
 
     private ArrayList<JsonArray> string_resources;
+    private ArrayList<String> previewURL;
     long limit = 500L;
     private View.OnTouchListener onTouchListener = new View.OnTouchListener() {
         @Override
@@ -96,14 +99,14 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
             return false;
         }
     };
-    private void changeStory(int direction) {
+    private void changeStory() {
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.stop();
         }
         mediaPlayer.reset();
 
         try {
-            String songUrl = arr(content + direction); // Calculate next story index
+            String songUrl = previewURL.get(content); // Calculate next story index
             mediaPlayer.setDataSource(this, Uri.parse(songUrl));
             mediaPlayer.prepareAsync();
         } catch (IOException e) {
@@ -125,6 +128,8 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
 
         client = new ApiClient();
         string_resources = new ArrayList<>();
+        previewURL = new ArrayList();
+        mediaPlayer = new MediaPlayer();
 
 
         db = FirebaseFirestore.getInstance();
@@ -149,7 +154,14 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
             Log.e(TAG, "onCreate: " + e.getLocalizedMessage() );
         }
 
-        //Log.d(TAG, "onCreate: Preview Tracks" + wrapped_info.getPreviewTracks());
+
+
+        for(int i = 0; i < wrapped_info.getPreviewTracks().size(); i++) {
+            previewURL.add(i, wrapped_info.getPreviewTracks().get(i).getAsString());
+        }
+
+        Log.d(TAG, "onCreate: Preview Tracks" + previewURL.toString());
+
 
         iv_background = findViewById(R.id.image);
 
@@ -203,7 +215,11 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
 
         content = 0;
 
-        mediaPlayer.setDataSource(this, arr[content]);
+        try {
+            mediaPlayer.setDataSource(this, Uri.parse(previewURL.get(content)));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         mediaPlayer.start();
 
         // bind reverse view
@@ -231,9 +247,8 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
     public void onNext() {
         iv_background.setImageResource(resources[++content]);
         displayUserInfo(string_resources.get(content));
-        if (content < resources.length - 1) {
-            changeStory(1);
-        }
+        changeStory();
+
 
 
     }
@@ -316,11 +331,9 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
 
     @Override
     public void onPrev() {
-        iv_background.setImageResource(resources[++content]);
+        iv_background.setImageResource(resources[--content]);
         displayUserInfo(string_resources.get(content));
-        if (content > 0) {
-            changeStory(-1);
-        }
+        changeStory();
 
     }
 

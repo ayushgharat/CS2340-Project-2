@@ -45,6 +45,7 @@ public class HomePageFragment extends Fragment {
 
     private TextView tv_username, tv_follower_count;
     private ArrayList<String> track_id;
+    private ArrayList<String> previewURL;
     private ImageView iv_profile_picture;
     private Button bt_generate_insights;
     private SharedViewModel viewModel;
@@ -85,6 +86,7 @@ public class HomePageFragment extends Fragment {
                              Bundle savedInstanceState) {
         gson = new Gson();
         track_id = new ArrayList<>();
+        previewURL = new ArrayList<>();
 
         View rootView = inflater.inflate(R.layout.fragment_home_page, container, false);
         tv_username = rootView.findViewById(R.id.tv_user_name);
@@ -220,15 +222,85 @@ public class HomePageFragment extends Fragment {
 
                                         wrapped_info.setTracksSaved(userDisplayFavouriteTracks);
 
-                                        String jsonString = gson.toJson(track_id);
-                                        JsonArray previewTracks = gson.fromJson(jsonString, JsonArray.class);
-                                        wrapped_info.setPreviewTracks(previewTracks);
+                                        client.getTrackDetails(token, track_id.get(0), new Callback() {
+                                            @Override
+                                            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                                                Log.e(TAG, "onFailure: " + e.getMessage());
+                                            }
 
-                                        String my_wrapped = gson.toJson(wrapped_info);
-                                        Intent intent = new Intent(requireActivity(), StoryActivity.class);
-                                        intent.putExtra("wrapped_info", my_wrapped);
-                                        intent.putExtra("toBeSaved", true);
-                                        startActivity(intent);
+                                            @Override
+                                            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                                                if (response.isSuccessful()) {
+                                                    String responseData = response.body().string(); // Get the raw JSON response
+                                                    JsonObject jsonResponse = JsonParser.parseString(responseData).getAsJsonObject();
+                                                    String previewUrl = jsonResponse.get("preview_url").getAsString(); // Extract the preview URL
+                                                    // Do something with the preview URL, e.g., update the UI or store it for later use
+                                                    //Log.d("Preview URL", "Track Preview URL: " + previewUrl);
+
+                                                    previewURL.add(0, previewUrl);
+
+                                                    client.getTrackDetails(token, track_id.get(1), new Callback() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                                                            Log.e(TAG, "onFailure: " + e.getMessage());
+                                                        }
+
+                                                        @Override
+                                                        public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                                                            if (response.isSuccessful()) {
+                                                                String responseData = response.body().string(); // Get the raw JSON response
+                                                                JsonObject jsonResponse = JsonParser.parseString(responseData).getAsJsonObject();
+                                                                String previewUrl = jsonResponse.get("preview_url").getAsString(); // Extract the preview URL
+                                                                // Do something with the preview URL, e.g., update the UI or store it for later use
+                                                                Log.d("Preview URL", "Track Preview URL: " + previewUrl);
+
+                                                                previewURL.add(1, previewUrl);
+                                                                client.getTrackDetails(token, track_id.get(2), new Callback() {
+                                                                    @Override
+                                                                    public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                                                                        Log.e(TAG, "onFailure: " + e.getMessage());
+                                                                    }
+
+                                                                    @Override
+                                                                    public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                                                                        if (response.isSuccessful()) {
+                                                                            String responseData = response.body().string(); // Get the raw JSON response
+                                                                            JsonObject jsonResponse = JsonParser.parseString(responseData).getAsJsonObject();
+                                                                            String previewUrl = jsonResponse.get("preview_url").getAsString(); // Extract the preview URL
+                                                                            // Do something with the preview URL, e.g., update the UI or store it for later use
+                                                                            Log.d("Preview URL", "Track Preview URL: " + previewUrl);
+
+                                                                            previewURL.add(2, previewUrl);
+
+                                                                            String jsonString = gson.toJson(previewURL);
+                                                                            JsonArray previewTracks = gson.fromJson(jsonString, JsonArray.class);
+                                                                            wrapped_info.setPreviewTracks(previewTracks);
+
+                                                                            initiateStoryActivity();
+                                                                        } else {
+                                                                            // Handle the case where the server response was not successful
+                                                                            Log.e("HTTP error", "Failed to fetch track details. Response code: " + response.code());}
+
+                                                                    }
+                                                                });
+
+                                                                //initiateStoryActivity();
+                                                            } else {
+                                                                // Handle the case where the server response was not successful
+                                                                Log.e("HTTP error", "Failed to fetch track details. Response code: " + response.code());}
+
+                                                        }
+                                                    });
+
+                                                    //initiateStoryActivity();
+                                                } else {
+                                                    // Handle the case where the server response was not successful
+                                                    Log.e("HTTP error", "Failed to fetch track details. Response code: " + response.code());}
+                                                
+                                            }
+                                        });
+
+
                                     } catch (Exception e) {
                                         Log.e("JSON", "Failed to parse data: " + e);
                                     }
@@ -248,6 +320,13 @@ public class HomePageFragment extends Fragment {
 
     }
 
+    private void initiateStoryActivity() {
+        String my_wrapped = gson.toJson(wrapped_info);
+        Intent intent = new Intent(requireActivity(), StoryActivity.class);
+        intent.putExtra("wrapped_info", my_wrapped);
+        intent.putExtra("toBeSaved", true);
+        startActivity(intent);
+    }
 
 
     /**
