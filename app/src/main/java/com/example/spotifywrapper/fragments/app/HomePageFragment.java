@@ -1,6 +1,8 @@
 package com.example.spotifywrapper.fragments.app;
 
+import android.app.AlertDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -13,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,6 +49,7 @@ public class HomePageFragment extends Fragment {
     private ArrayList<String> track_id;
     private ImageView iv_profile_picture;
     private Button bt_generate_insights;
+    private Button bt_invite_friends;
     private SharedViewModel viewModel;
     private String token;
     private ApiClient client;
@@ -90,6 +94,7 @@ public class HomePageFragment extends Fragment {
         tv_follower_count = rootView.findViewById(R.id.tv_follower_count);
         iv_profile_picture = rootView.findViewById(R.id.profile_picture);
         bt_generate_insights = rootView.findViewById(R.id.bt_generate_insights);
+        bt_invite_friends = rootView.findViewById(R.id.bt_invite_friends);
 
         viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
         client = new ApiClient();
@@ -119,6 +124,10 @@ public class HomePageFragment extends Fragment {
             public void onClick(View view) {
                 getWrappedData();
             }
+        });
+
+        bt_invite_friends.setOnClickListener(view -> {
+            inviteFriends(); // Call inviteFriends() when the invite friends button is clicked
         });
 
         return rootView;
@@ -265,6 +274,35 @@ public class HomePageFragment extends Fragment {
                 e.printStackTrace();
             }
         });
+    }
+
+    private void inviteFriends() {
+        View view = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_invite_friends, null);
+
+        EditText etPhoneNumber = view.findViewById(R.id.et_phone_number);
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Invite Friends")
+                .setView(view)
+                .setPositiveButton("Send", (dialogInterface, i) -> {
+                    String friendPhoneNumber = etPhoneNumber.getText().toString().trim();
+                    if (!friendPhoneNumber.isEmpty()) {
+                        String message = "Hey, check out this cool music app! Let's compare our music tastes.";
+
+                        Intent intent = new Intent(Intent.ACTION_SENDTO).setData(Uri.parse("smsto:" + friendPhoneNumber))
+                                .putExtra("sms_body", message);
+
+                        if (intent.resolveActivity(requireActivity().getPackageManager()) != null) {
+                            startActivity(intent);
+                        } else {
+                            showToast("No messaging app found");
+                        }
+                    } else {
+                        showToast("Please enter a valid phone number");
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     /**

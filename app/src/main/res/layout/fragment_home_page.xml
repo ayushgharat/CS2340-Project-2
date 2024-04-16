@@ -81,4 +81,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/bt_invite_friends"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Invite Friends"
+        app:layout_constraintEnd_toEndOf="@id/bt_generate_insights"
+        app:layout_constraintTop_toBottomOf="@id/bt_generate_insights" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
