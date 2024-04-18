@@ -12,7 +12,20 @@
           "package_name": "com.example.spotifywrapper"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "172778302277-a4q1l76q971qe5htu9d2ltjk4ad0nv75.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.spotifywrapper",
+            "certificate_hash": "e2f485b6f062d42e96713ed964d66de065b91e2d"
+          }
+        },
+        {
+          "client_id": "172778302277-0dlu42nmtpfcg6qhb59b6th78r98usfc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAHxCxRiQmjNx0CIuNslQD0t03vffXPFRo"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "172778302277-0dlu42nmtpfcg6qhb59b6th78r98usfc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

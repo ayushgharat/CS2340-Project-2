@@ -48,7 +48,7 @@
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginHorizontal="32dp"
         android:layout_marginTop="24dp"
-        android:text="Email"
+        android:text="New Email"
         android:textSize="18sp"
         android:textColor="@color/white"
         android:fontFamily="@font/figtreebold"/>
@@ -75,31 +75,65 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <TextView
-        android:id="@+id/tv_edit_password"
+        android:id="@+id/tv_old_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/et_edit_email_layout"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginHorizontal="32dp"
         android:layout_marginTop="24dp"
-        android:text="Password"
+        android:text="Old Password"
         android:textSize="18sp"
         android:textColor="@color/white"
         android:fontFamily="@font/figtreebold"/>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/et_edit_password_layout"
+        android:id="@+id/et_edit_old_password_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_edit_password"
+        app:layout_constraintTop_toBottomOf="@id/tv_old_password"
         android:layout_marginHorizontal="32dp"
         android:layout_marginTop="12dp"
         android:background="@drawable/edittext_login">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/et_edit_name_password"
+            android:id="@+id/et_old_password_field"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:fontFamily="@font/figtreeregular"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/tv_new_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/et_edit_old_password_layout"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginHorizontal="32dp"
+        android:layout_marginTop="24dp"
+        android:text="New Password"
+        android:textSize="18sp"
+        android:textColor="@color/white"
+        android:fontFamily="@font/figtreebold"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/et_new_password_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_new_password"
+        android:layout_marginHorizontal="32dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/edittext_login">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_new_password_field"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:textColor="@color/white"
@@ -112,11 +146,11 @@
 
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/et_edit_password_layout"
+        app:layout_constraintTop_toBottomOf="@id/et_new_password_layout"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginHorizontal="32dp"
         android:layout_marginTop="24dp"
-        android:text="Note: Leave the password field empty if you do not wish to change it"
+        android:text="Note: Leave the new password field empty if you do not wish to change it"
         android:textSize="16sp"
         android:textColor="@color/white"
         android:fontFamily="@font/figtreeregular"/>

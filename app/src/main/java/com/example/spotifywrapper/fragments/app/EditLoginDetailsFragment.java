@@ -15,8 +15,11 @@ import android.widget.Toast;
 
 import com.example.spotifywrapper.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -33,9 +36,9 @@ public class EditLoginDetailsFragment extends Fragment {
 
     private static final String TAG = "EditLoginDetailsFragment";
 
-    String oldEmail, oldName;
+    String oldEmail, oldName, oldPasswor;
 
-    private EditText et_name, et_email, et_password;
+    private EditText et_name, et_email, et_old_password, et_new_password;
     private Button bt_save_credentials;
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
@@ -66,7 +69,8 @@ public class EditLoginDetailsFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_edit_login_details, container, false);
         et_name = rootView.findViewById(R.id.et_edit_name_field);
         et_email = rootView.findViewById(R.id.et_edit_email_field);
-        et_password = rootView.findViewById(R.id.et_edit_name_password);
+        et_old_password = rootView.findViewById(R.id.et_old_password_field);
+        et_new_password = rootView.findViewById(R.id.et_new_password_field);
         bt_save_credentials = rootView.findViewById(R.id.bt_save_details);
 
         oldName = userDetails.get("display_name").toString();
@@ -88,7 +92,8 @@ public class EditLoginDetailsFragment extends Fragment {
     private void updateDetails() {
         String name = et_name.getText().toString();
         String email = et_email.getText().toString();
-        String password = et_password.getText().toString();
+        String old_password = et_old_password.getText().toString();
+        String new_password = et_new_password.getText().toString();
 
         String uid = mAuth.getCurrentUser().getUid();
 
@@ -103,25 +108,51 @@ public class EditLoginDetailsFragment extends Fragment {
             });
         }
 
-        if(!email.equals((oldEmail))) {
-            user.updateEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
+        if(!email.equals((oldEmail)) && !old_password.isEmpty()) {
+            FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
 
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    if(task.isSuccessful()) {
-                        db.collection("users").document(uid).update("email", email).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void unused) {
-                                Toast.makeText(requireActivity(), "Name updated", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-                }
-            });
+// Get auth credentials from the user for re-authentication. The example below shows
+// email and password credentials but there are multiple possible providers,
+// such as GoogleAuthProvider or FacebookAuthProvider.
+            AuthCredential credential = EmailAuthProvider
+                    .getCredential(mUser.getEmail(), old_password);
+
+// Prompt the user to re-provide their sign-in credentials
+            mUser.reauthenticate(credential)
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            Log.d(TAG, "User re-authenticated.");
+                            user.updateEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
+
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if(task.isSuccessful()) {
+                                        db.collection("users").document(uid).update("email", email).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void unused) {
+                                                Toast.makeText(requireActivity(), "Email updated", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }).addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Log.e(TAG, "onFailure: " + e.getMessage() );
+                                            }
+                                        });
+                                    }
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.e(TAG, "onFailure: " + e.getMessage() );
+                                }
+                            });
+                        }
+                    });
         }
 
-        if(!password.isEmpty()) {
-            user.updatePassword(password)
+        if(!new_password.isEmpty()) {
+            user.updatePassword(new_password)
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {

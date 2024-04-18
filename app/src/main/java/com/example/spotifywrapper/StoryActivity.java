@@ -272,6 +272,7 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
     private void displayPopularTrack(JsonArray jsonArray) {
         layout_pop_tracks.setVisibility(View.VISIBLE);
         layout_fav_track.setVisibility(View.INVISIBLE);
+        layout_fav_artist.setVisibility(View.INVISIBLE);
 
         Log.d(TAG, "displayPopularTrack: " + jsonArray.get(0));
 
@@ -284,6 +285,7 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
     private void displayFavTrackInfo(JsonArray items) {
         layout_fav_artist.setVisibility(View.INVISIBLE);
         layout_fav_track.setVisibility(View.VISIBLE);
+        layout_pop_tracks.setVisibility(View.INVISIBLE);
 
         tv_track_name_1.setText(items.get(0).getAsJsonObject().get("name").getAsString());
         tv_track_name_2.setText(items.get(1).getAsJsonObject().get("name").getAsString());
@@ -308,6 +310,10 @@ public class StoryActivity extends AppCompatActivity implements StoriesProgressV
     }
 
     private void displayFavArtistInfo(JsonArray array) throws JSONException {
+        layout_fav_artist.setVisibility(View.VISIBLE);
+        layout_fav_track.setVisibility(View.INVISIBLE);
+        layout_pop_tracks.setVisibility(View.INVISIBLE);
+
         tv_artist_1.setText(array.get(0).getAsJsonObject().get("name").getAsString());
         tv_artist_2.setText(array.get(1).getAsJsonObject().get("name").getAsString());
         tv_artist_3.setText(array.get(2).getAsJsonObject().get("name").getAsString());

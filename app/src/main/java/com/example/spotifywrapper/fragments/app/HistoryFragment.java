@@ -88,6 +88,18 @@ public class HistoryFragment extends Fragment {
         View rootView =  inflater.inflate(R.layout.fragment_history, container, false);
         recyclerView = rootView.findViewById(R.id.rv_saved_wrapped);
 
+        generateView();
+
+        return rootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+    }
+
+    private void generateView() {
         viewModel.getSaved_wrapped().observe(getViewLifecycleOwner(), saved_wrapped -> {
             list = saved_wrapped;
             adapter = new CustomAdapter(list);
@@ -107,8 +119,6 @@ public class HistoryFragment extends Fragment {
 
 
         });
-
-        return rootView;
     }
 
 

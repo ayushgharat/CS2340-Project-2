@@ -161,6 +161,12 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+
     /**
      * This code is used to assign the options on the bottomNavigationView so that when a tab is
      * selected, the appropriate fragment is shown
