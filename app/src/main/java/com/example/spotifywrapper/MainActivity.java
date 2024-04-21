@@ -5,9 +5,11 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.example.spotifywrapper.fragments.app.ComparisonFragment;
 import com.example.spotifywrapper.fragments.login.SplashScreenFragment;
 import com.example.spotifywrapper.fragments.login.SpotifyAuthorizationFragment;
 import com.example.spotifywrapper.utils.SpotifyAuthorizationManager;
@@ -58,6 +60,16 @@ public class MainActivity extends AppCompatActivity {
 
             // Commit the transaction
             fragmentTransaction.commit();
+        }
+        Intent intent = getIntent();
+        if (intent != null && intent.getData() != null) {
+            Uri uri = intent.getData();
+            String fragment = uri.getQueryParameter("fragment");
+            if ("comparison".equals(fragment)) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.activity_main, new ComparisonFragment())
+                        .commit();
+            }
         }
     }
 

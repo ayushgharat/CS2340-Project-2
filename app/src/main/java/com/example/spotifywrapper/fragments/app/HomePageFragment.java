@@ -278,7 +278,6 @@ public class HomePageFragment extends Fragment {
 
     private void inviteFriends() {
         View view = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_invite_friends, null);
-
         EditText etPhoneNumber = view.findViewById(R.id.et_phone_number);
 
         new AlertDialog.Builder(requireContext())
@@ -287,15 +286,22 @@ public class HomePageFragment extends Fragment {
                 .setPositiveButton("Send", (dialogInterface, i) -> {
                     String friendPhoneNumber = etPhoneNumber.getText().toString().trim();
                     if (!friendPhoneNumber.isEmpty()) {
-                        String message = "Hey, check out this cool music app! Let's compare our music tastes.";
+                        String deepLink = generateDeepLink(); // Generate the deep link
 
-                        Intent intent = new Intent(Intent.ACTION_SENDTO).setData(Uri.parse("smsto:" + friendPhoneNumber))
-                                .putExtra("sms_body", message);
+                        if (deepLink != null) {
+                            String message = "Hey, check out this cool music app! Let's compare our music tastes. " + deepLink;
 
-                        if (intent.resolveActivity(requireActivity().getPackageManager()) != null) {
-                            startActivity(intent);
+                            Intent intent = new Intent(Intent.ACTION_SENDTO)
+                                    .setData(Uri.parse("smsto:" + friendPhoneNumber))
+                                    .putExtra("sms_body", message);
+
+                            if (intent.resolveActivity(requireActivity().getPackageManager()) != null) {
+                                startActivity(intent);
+                            } else {
+                                showToast("No messaging app found");
+                            }
                         } else {
-                            showToast("No messaging app found");
+                            showToast("Failed to generate invite link");
                         }
                     } else {
                         showToast("Please enter a valid phone number");
@@ -303,6 +309,11 @@ public class HomePageFragment extends Fragment {
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
+    }
+    private String generateDeepLink() {
+        // Generate the deep link here
+        String deepLink = "wrapped://open?fragment=comparison"; // Replace with your actual deep link
+        return deepLink;
     }
 
     /**
