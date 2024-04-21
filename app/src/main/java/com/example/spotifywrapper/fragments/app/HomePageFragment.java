@@ -6,6 +6,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -52,7 +54,7 @@ public class HomePageFragment extends Fragment {
     private ArrayList<String> track_id;
     private ArrayList<String> previewURL;
     private ImageView iv_profile_picture;
-    private Button bt_generate_insights, bt_generate_recommendations;
+    private Button bt_generate_insights, bt_generate_recommendations, bt_generate_duo;
     private SharedViewModel viewModel;
     private String token;
     private ApiClient client;
@@ -100,6 +102,7 @@ public class HomePageFragment extends Fragment {
         iv_profile_picture = rootView.findViewById(R.id.profile_picture);
         bt_generate_insights = rootView.findViewById(R.id.bt_generate_insights);
         bt_generate_recommendations = rootView.findViewById(R.id.bt_generate_recommendations);
+        bt_generate_duo = rootView.findViewById(R.id.bt_duo_playlist);
         rv_recommendation = rootView.findViewById(R.id.rv_recommendation);
 
 
@@ -134,6 +137,13 @@ public class HomePageFragment extends Fragment {
             }
         });
 
+        bt_generate_duo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goToDuoSearch();
+            }
+        });
+
         bt_generate_recommendations.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -143,6 +153,25 @@ public class HomePageFragment extends Fragment {
 
         return rootView;
     }
+
+    private void goToDuoSearch() {
+        // Create an instance of EditLoginDetailsFragment
+        SearchUserFragment fragment = new SearchUserFragment();
+
+        // Get the fragment manager
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+
+        // Begin a transaction
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        // Replace the existing fragment or add it to the container
+        fragmentTransaction.replace(R.id.fragment_container_home_page, fragment);
+        fragmentTransaction.addToBackStack(null);
+
+        // Commit the transaction
+        fragmentTransaction.commit();
+    }
+
 
     private void generateRecommendation() {
         // Create a StringBuilder to construct the result
