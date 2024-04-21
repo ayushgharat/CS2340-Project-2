@@ -92,16 +92,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/bt_generate_recommendations"
-        app:layout_constraintTop_toBottomOf="@id/bt_generate_insights"
-        app:layout_constraintStart_toStartOf="parent"
-        android:text="Generate Recommendations"
-        android:background="@drawable/button_background_primary"
-        android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="40dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+<!--    <androidx.appcompat.widget.AppCompatButton-->
+<!--        android:id="@+id/bt_generate_recommendations"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/bt_generate_insights"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        android:text="Generate Recommendations"-->
+<!--        android:background="@drawable/button_background_primary"-->
+<!--        android:layout_marginHorizontal="20dp"-->
+<!--        android:layout_marginTop="40dp"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"/>-->
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_recommendation"
