@@ -48,6 +48,16 @@ public class ApiClient {
         apiCall.enqueue(callback);
     }
 
+    public void getRecommendations(String token, String seed, Callback callback) {
+        Request request = new Request.Builder()
+                .url("https://api.spotify.com/v1/recommendations?seed_tracks="+ seed)
+                .addHeader("Authorization", "Bearer " + token)
+                .build();
+
+        Call apiCall = httpClient.newCall(request);
+        apiCall.enqueue(callback);
+    }
+
     public void getFavoriteTracks(String token, Callback callback) {
         Request request = new Request.Builder()
                 .url("https://api.spotify.com/v1/me/top/tracks")

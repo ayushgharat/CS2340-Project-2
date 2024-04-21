@@ -7,6 +7,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,6 +23,7 @@ import com.example.spotifywrapper.R;
 import com.example.spotifywrapper.StoryActivity;
 import com.example.spotifywrapper.model.Wrapped;
 import com.example.spotifywrapper.utils.ApiClient;
+import com.example.spotifywrapper.utils.RecommendationAdapter;
 import com.example.spotifywrapper.utils.SharedViewModel;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -30,6 +33,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.squareup.picasso.Picasso;
 
+import org.checkerframework.checker.units.qual.C;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,15 +48,17 @@ import okhttp3.Response;
 public class HomePageFragment extends Fragment {
 
     private TextView tv_username, tv_follower_count;
+    private RecyclerView rv_recommendation;
     private ArrayList<String> track_id;
     private ArrayList<String> previewURL;
     private ImageView iv_profile_picture;
-    private Button bt_generate_insights;
+    private Button bt_generate_insights, bt_generate_recommendations;
     private SharedViewModel viewModel;
     private String token;
     private ApiClient client;
     private Wrapped wrapped_info;
     private Gson gson;
+    private RecommendationAdapter adapter;
     private static final String TAG = "HomePageFragment";
 
     public HomePageFragment() {
@@ -93,6 +99,10 @@ public class HomePageFragment extends Fragment {
         tv_follower_count = rootView.findViewById(R.id.tv_follower_count);
         iv_profile_picture = rootView.findViewById(R.id.profile_picture);
         bt_generate_insights = rootView.findViewById(R.id.bt_generate_insights);
+        bt_generate_recommendations = rootView.findViewById(R.id.bt_generate_recommendations);
+        rv_recommendation = rootView.findViewById(R.id.rv_recommendation);
+
+
 
         viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
         client = new ApiClient();
@@ -124,7 +134,67 @@ public class HomePageFragment extends Fragment {
             }
         });
 
+        bt_generate_recommendations.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                generateRecommendation();
+            }
+        });
+
         return rootView;
+    }
+
+    private void generateRecommendation() {
+        // Create a StringBuilder to construct the result
+        StringBuilder sb = new StringBuilder();
+
+        // Append each element of the ArrayList to StringBuilder
+        for (int i = 0; i < track_id.size(); i++) {
+            sb.append(track_id.get(i));
+            if (i < track_id.size() - 1) {
+                sb.append(","); // Append comma if it's not the last element
+            }
+        }
+
+        // Convert StringBuilder to String
+        String seed = sb.toString();
+
+        client.getRecommendations(token, seed, new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                Log.e(TAG, "onFailure: " + e.getMessage() );
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseData = response.body().string(); // Get the raw JSON response
+                    JsonObject recommendedTracks = JsonParser.parseString(responseData).getAsJsonObject();
+
+                    JsonArray userRecommendedTracks = new JsonArray();
+
+                    for (int i = 0; i < Math.min(5, recommendedTracks.getAsJsonArray("tracks").size()); i++) {
+                        JsonObject object = new JsonObject();
+                        object.add("name", recommendedTracks.getAsJsonArray("tracks").get(i).getAsJsonObject().get("name"));
+                        object.add("artist", recommendedTracks.getAsJsonArray("tracks").get(i).getAsJsonObject().getAsJsonArray("artists").get(0).getAsJsonObject().get("name"));
+                        object.add("url", recommendedTracks.getAsJsonArray("tracks").get(i).getAsJsonObject().getAsJsonObject("album").getAsJsonArray("images").get(0).getAsJsonObject().get("url"));
+                        userRecommendedTracks.add(object);
+                    }
+
+                    requireActivity().runOnUiThread(() -> {
+                        adapter = new RecommendationAdapter(userRecommendedTracks);
+                        rv_recommendation.setLayoutManager(new LinearLayoutManager(requireActivity()));
+                        rv_recommendation.setAdapter(adapter);
+                    });
+
+
+
+                    Log.d(TAG, "onResponse: " + userRecommendedTracks);
+                } else {
+                    Log.e(TAG, "onResponse: " + response.message() );
+                }
+            }
+        });
     }
 
     private void getWrappedData() {
