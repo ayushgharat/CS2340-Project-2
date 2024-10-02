@@ -16,4 +16,4 @@ This Android app was developed as part of the **CS 2340** class, where I served 
 - **Retrofit**: For making network requests.
 - **Picasso**: For image loading.
 - **ViewPager2**: For displaying the story-like format.
-- **Firebase**: For user authenticaiton and data storage
+- **Firebase**: For user authentication and data storage
